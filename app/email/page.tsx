@@ -4,6 +4,17 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= breakpoint);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -60,6 +71,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function EmailPage() {
+  const isMobile = useIsMobile();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [sends, setSends] = useState<EmailSend[]>([]);
   const [search, setSearch] = useState("");
@@ -146,7 +159,7 @@ export default function EmailPage() {
         style={{
           background: "#0A0A0A",
           borderBottom: "1px solid #1F1F1F",
-          padding: "0 24px",
+          padding: isMobile ? "0 12px" : "0 24px",
           height: "60px",
           display: "flex",
           alignItems: "center",
@@ -156,28 +169,80 @@ export default function EmailPage() {
           zIndex: 100,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "12px" }}>
           <img src="https://traqd.io/favicon.ico" alt="Traqd" width={28} height={28} style={{ borderRadius: "6px" }} />
           <Link href="/" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "16px", color: "#fff" }}>
-              Casper <span style={{ color: "#86EFAC" }}>Operations</span>
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: isMobile ? "14px" : "16px", color: "#fff" }}>
+              Casper <span style={{ color: "#86EFAC" }}>Ops</span>
             </span>
           </Link>
-          <span style={{ color: "#1F1F1F", fontSize: "20px" }}>|</span>
-          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "14px", color: "#86EFAC" }}>
-            📧 Email Management
-          </span>
+          {!isMobile && (
+            <>
+              <span style={{ color: "#1F1F1F", fontSize: "20px" }}>|</span>
+              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "14px", color: "#86EFAC" }}>
+                📧 Email Management
+              </span>
+            </>
+          )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", color: "#A0A0A0" }}>
-          <Link href="/" style={{ color: "#A0A0A0", textDecoration: "none", fontFamily: "'Inter', sans-serif" }}>Dashboard</Link>
-          <Link href="/history" style={{ color: "#A0A0A0", textDecoration: "none", fontFamily: "'Inter', sans-serif" }}>History</Link>
-          <span style={{ color: "#86EFAC", fontFamily: "'Inter', sans-serif" }}>Email</span>
-        </div>
+        {isMobile ? (
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{ background: "none", border: "none", color: "#A0A0A0", fontSize: "22px", cursor: "pointer", padding: "4px 8px" }}
+            >
+              ☰
+            </button>
+            {menuOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "40px",
+                  right: 0,
+                  background: "#0D0D0D",
+                  border: "1px solid #1F1F1F",
+                  borderRadius: "8px",
+                  padding: "8px 0",
+                  minWidth: "140px",
+                  zIndex: 200,
+                }}
+              >
+                {[
+                  { href: "/", label: "🏠 Dashboard" },
+                  { href: "/history", label: "📜 History" },
+                  { href: "/email", label: "📧 Email", active: true },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    style={{
+                      display: "block",
+                      padding: "8px 16px",
+                      color: item.active ? "#86EFAC" : "#A0A0A0",
+                      textDecoration: "none",
+                      fontSize: "13px",
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", color: "#A0A0A0" }}>
+            <Link href="/" style={{ color: "#A0A0A0", textDecoration: "none", fontFamily: "'Inter', sans-serif" }}>Dashboard</Link>
+            <Link href="/history" style={{ color: "#A0A0A0", textDecoration: "none", fontFamily: "'Inter', sans-serif" }}>History</Link>
+            <span style={{ color: "#86EFAC", fontFamily: "'Inter', sans-serif" }}>Email</span>
+          </div>
+        )}
       </header>
 
-      <main style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+      <main style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1200px", margin: "0 auto" }}>
         {/* KPI Row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? "10px" : "16px", marginBottom: "24px" }}>
           {[
             { label: "Total Subscribers", value: subscribers.length, color: "#FFFFFF" },
             { label: "Emails Sent", value: totalSent, color: "#86EFAC" },
@@ -215,17 +280,17 @@ export default function EmailPage() {
                     transition: "height 0.3s",
                   }}
                 />
-                <span style={{ fontSize: "10px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif", textAlign: "center", lineHeight: "1.2" }}>
-                  {i + 1}. {STAGE_LABELS[i]}
+                <span style={{ fontSize: isMobile ? "8px" : "10px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif", textAlign: "center", lineHeight: "1.2" }}>
+                  {isMobile ? `${i + 1}` : `${i + 1}. ${STAGE_LABELS[i]}`}
                 </span>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 300px", gap: isMobile ? "16px" : "24px" }}>
           {/* Subscriber Table */}
-          <div style={cardStyle}>
+          <div style={{ ...cardStyle, ...(isMobile ? { overflowX: "auto" as const } : {}) }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "8px" }}>
               <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "14px", margin: 0 }}>
                 Subscribers
@@ -275,7 +340,7 @@ export default function EmailPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1.2fr 1.5fr 0.8fr 0.8fr 0.7fr 1fr",
+                gridTemplateColumns: isMobile ? "1fr 0.6fr 0.5fr 0.9fr" : "1.2fr 1.5fr 0.8fr 0.8fr 0.7fr 1fr",
                 gap: "8px",
                 padding: "8px 12px",
                 fontSize: "10px",
@@ -284,12 +349,13 @@ export default function EmailPage() {
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 borderBottom: "1px solid #1F1F1F",
+                minWidth: isMobile ? "0" : undefined,
               }}
             >
               <span>Name</span>
-              <span>Email</span>
+              {!isMobile && <span>Email</span>}
               <span>Stage</span>
-              <span>Signed Up</span>
+              {!isMobile && <span>Signed Up</span>}
               <span>Status</span>
               <span>Actions</span>
             </div>
@@ -305,10 +371,10 @@ export default function EmailPage() {
                     onClick={() => setExpandedId(isExpanded ? null : sub.id)}
                     style={{
                       display: "grid",
-                      gridTemplateColumns: "1.2fr 1.5fr 0.8fr 0.8fr 0.7fr 1fr",
+                      gridTemplateColumns: isMobile ? "1fr 0.6fr 0.5fr 0.9fr" : "1.2fr 1.5fr 0.8fr 0.8fr 0.7fr 1fr",
                       gap: "8px",
                       padding: "10px 12px",
-                      fontSize: "12px",
+                      fontSize: isMobile ? "11px" : "12px",
                       fontFamily: "'Inter', sans-serif",
                       borderBottom: "1px solid #0D0D0D",
                       cursor: "pointer",
@@ -316,8 +382,8 @@ export default function EmailPage() {
                       transition: "background 0.15s",
                     }}
                   >
-                    <span style={{ color: "#fff", fontWeight: 500 }}>{sub.name}</span>
-                    <span style={{ color: "#A0A0A0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub.email}</span>
+                    <span style={{ color: "#fff", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub.name}</span>
+                    {!isMobile && <span style={{ color: "#A0A0A0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub.email}</span>}
                     <span>
                       <span style={{
                         background: "#86EFAC20",
@@ -330,7 +396,7 @@ export default function EmailPage() {
                         {sub.current_stage}/8
                       </span>
                     </span>
-                    <span style={{ color: "#A0A0A0" }}>{new Date(sub.signup_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                    {!isMobile && <span style={{ color: "#A0A0A0" }}>{new Date(sub.signup_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>}
                     <span style={{ color: STATUS_COLORS[sub.status], fontSize: "11px", fontWeight: 500, textTransform: "capitalize" }}>
                       {sub.status}
                     </span>
