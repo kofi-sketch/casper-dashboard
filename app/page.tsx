@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -252,9 +253,27 @@ function PipelineRow({ pipeline }: { pipeline: Pipeline }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {isComplete || isFailed ? (
-            <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
-              {completedCount}/{totalStages} stages · started {timeAgo(pipeline.startedAt)}
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
+                {completedCount}/{totalStages} stages · started {timeAgo(pipeline.startedAt)}
+              </span>
+              <Link
+                href="/history"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  fontSize: "11px",
+                  color: "#86EFAC",
+                  fontFamily: "'Inter', sans-serif",
+                  textDecoration: "none",
+                  padding: "2px 8px",
+                  background: "rgba(134,239,172,0.07)",
+                  border: "1px solid rgba(134,239,172,0.2)",
+                  borderRadius: "4px",
+                }}
+              >
+                View History
+              </Link>
+            </div>
           ) : (
             <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
               {completedCount}/{totalStages} · {pct}%
@@ -528,6 +547,8 @@ export default function Dashboard() {
             <span style={{ color: "#86EFAC" }}>Operations</span> Dashboard
           </span>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          
         <div
           style={{
             display: "flex",
@@ -555,6 +576,7 @@ export default function Dashboard() {
           {lastRefresh && (
             <span>Updated {formatTime(lastRefresh.toISOString())}</span>
           )}
+        </div>
         </div>
       </header>
 
@@ -746,19 +768,38 @@ export default function Dashboard() {
             }}
           >
             <SectionTitle>Pipelines</SectionTitle>
-            <span
-              style={{
-                fontSize: "12px",
-                color: "#A0A0A0",
-                fontFamily: "'Inter', sans-serif",
-                marginBottom: "16px",
-              }}
-            >
-              {runningPipelines.length} active · {donePipelines.length} done
-            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span
+                style={{
+                  fontSize: "12px",
+                  color: "#A0A0A0",
+                  fontFamily: "'Inter', sans-serif",
+                }}
+              >
+                {runningPipelines.length} active · {donePipelines.length} done
+              </span>
+              <Link
+                href="/history"
+                style={{
+                  fontSize: "11px",
+                  color: "#86EFAC",
+                  fontFamily: "'Inter', sans-serif",
+                  textDecoration: "none",
+                  padding: "3px 10px",
+                  background: "rgba(134,239,172,0.07)",
+                  border: "1px solid rgba(134,239,172,0.2)",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
+                🕐 Pipeline History
+              </Link>
+            </div>
           </div>
 
-          {(state.pipelines || []).length === 0 ? (
+          {runningPipelines.length === 0 ? (
             <div
               style={{
                 textAlign: "center",
@@ -768,32 +809,12 @@ export default function Dashboard() {
                 fontFamily: "'Inter', sans-serif",
               }}
             >
-              No pipelines active
+              No active pipelines
             </div>
           ) : (
-            <>
-              {/* Running pipelines first */}
-              {runningPipelines.map((p) => (
-                <PipelineRow key={p.id} pipeline={p} />
-              ))}
-              {/* Done pipelines collapsed by default */}
-              {donePipelines.length > 0 && (
-                <>
-                  {runningPipelines.length > 0 && (
-                    <div
-                      style={{
-                        borderTop: "1px solid #1A1A1A",
-                        margin: "8px 0",
-                        paddingTop: "8px",
-                      }}
-                    />
-                  )}
-                  {donePipelines.map((p) => (
-                    <PipelineRow key={p.id} pipeline={p} />
-                  ))}
-                </>
-              )}
-            </>
+            runningPipelines.map((p) => (
+              <PipelineRow key={p.id} pipeline={p} />
+            ))
           )}
         </Card>
 
