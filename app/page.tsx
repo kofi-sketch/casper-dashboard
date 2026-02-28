@@ -548,7 +548,8 @@ export default function Dashboard() {
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          
+          <Link href="/email" style={{ color: "#A0A0A0", textDecoration: "none", fontSize: "12px", fontFamily: "'Inter', sans-serif" }}>📧 Email</Link>
+          <Link href="/history" style={{ color: "#A0A0A0", textDecoration: "none", fontSize: "12px", fontFamily: "'Inter', sans-serif" }}>History</Link>
         <div
           style={{
             display: "flex",
