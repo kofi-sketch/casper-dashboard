@@ -1,130 +1,103 @@
 {
-  "lastUpdated": "2026-02-28T16:32:00Z",
+  "lastUpdated": "2026-02-28T16:47:00Z",
   "kpis": {
-    "activeAgents": 3,
-    "tasksCompletedToday": 12,
-    "currentPipelineStage": "Script Writer",
-    "errorsToday": 1
+    "activeAgents": 1,
+    "tasksCompletedToday": 8,
+    "currentPipelineStage": "Meta Ads Specialist",
+    "errorsToday": 10
   },
   "pipeline": {
     "stages": ["Research", "Strategy", "Specialist", "Script Writer", "QA", "Delivery"],
-    "currentStage": "Script Writer",
-    "completedStages": ["Research", "Strategy", "Specialist"]
+    "currentStage": "Specialist",
+    "completedStages": ["Research", "Strategy"]
   },
   "activeTasks": [
     {
       "id": "task-001",
-      "agentName": "Research Agent",
-      "taskDescription": "Scraping Meta Ads Library for Traqd competitor analysis",
+      "agentName": "Meta Ads Specialist",
+      "taskDescription": "Writing script briefs for 3 video ads + 3 static ads",
       "status": "running",
-      "startedAt": "2026-02-28T15:45:00Z",
-      "estCompletion": "2026-02-28T16:45:00Z"
-    },
-    {
-      "id": "task-002",
-      "agentName": "Script Writer",
-      "taskDescription": "Writing 3x UGC video scripts for Traqd TOFU campaign",
-      "status": "running",
-      "startedAt": "2026-02-28T16:00:00Z",
-      "estCompletion": "2026-02-28T16:50:00Z"
-    },
-    {
-      "id": "task-003",
-      "agentName": "Strategy Agent",
-      "taskDescription": "Building Q1 content calendar for Kofi's personal brand",
-      "status": "queued",
-      "startedAt": "2026-02-28T16:20:00Z",
-      "estCompletion": "2026-02-28T17:10:00Z"
+      "startedAt": "2026-02-28T16:45:00Z",
+      "estCompletion": "2026-02-28T16:55:00Z"
     }
   ],
   "recentCompletions": [
     {
       "id": "comp-001",
-      "agentName": "Research Agent",
-      "taskDescription": "Traqd brand analysis from traqd.io",
-      "completedAt": "2026-02-28T15:44:00Z",
-      "duration": "8m 22s"
+      "agentName": "Researcher",
+      "taskDescription": "Pain Point scraping cycle (Reddit, X, Trustpilot, CPA publications)",
+      "completedAt": "2026-02-28T14:54:00Z",
+      "duration": "4m 16s"
     },
     {
       "id": "comp-002",
-      "agentName": "Strategy Agent",
-      "taskDescription": "FlowAudit Meta Ads campaign proposal",
-      "completedAt": "2026-02-28T15:30:00Z",
-      "duration": "12m 05s"
+      "agentName": "Builder Agent",
+      "taskDescription": "Pain Point Intelligence Report v1 (HTML/PDF)",
+      "completedAt": "2026-02-28T14:59:00Z",
+      "duration": "8m 6s"
     },
     {
       "id": "comp-003",
-      "agentName": "Ad Designer",
-      "taskDescription": "Generated 6 static ad creatives for Traqd MOFU",
-      "completedAt": "2026-02-28T15:10:00Z",
-      "duration": "4m 18s"
+      "agentName": "QA Agent",
+      "taskDescription": "QA review of PPIR v1 - FAILED (all black rendering)",
+      "completedAt": "2026-02-28T15:12:00Z",
+      "duration": "5m 2s"
     },
     {
       "id": "comp-004",
       "agentName": "QA Agent",
-      "taskDescription": "QA pass on FlowAudit landing page copy",
-      "completedAt": "2026-02-28T14:55:00Z",
-      "duration": "2m 44s"
+      "taskDescription": "QA review of PPIR v2 - FAILED (vertical text layout)",
+      "completedAt": "2026-02-28T15:20:00Z",
+      "duration": "4m 30s"
     },
     {
       "id": "comp-005",
-      "agentName": "Script Writer",
-      "taskDescription": "Kofi personal brand LinkedIn post (5x batch)",
-      "completedAt": "2026-02-28T14:30:00Z",
-      "duration": "6m 11s"
+      "agentName": "QA Agent",
+      "taskDescription": "QA review of PPIR v3 - PASSED",
+      "completedAt": "2026-02-28T15:25:00Z",
+      "duration": "3m 50s"
     },
     {
       "id": "comp-006",
-      "agentName": "Research Agent",
-      "taskDescription": "X (Twitter) competitor sentiment analysis — income tracking space",
-      "completedAt": "2026-02-28T13:58:00Z",
-      "duration": "9m 33s"
+      "agentName": "Researcher",
+      "taskDescription": "Meta Ads best practices, competitor creative analysis, audience targeting research",
+      "completedAt": "2026-02-28T16:42:00Z",
+      "duration": "4m 16s"
     },
     {
       "id": "comp-007",
-      "agentName": "Delivery Agent",
-      "taskDescription": "Deployed Traqd waitlist landing page to Vercel",
-      "completedAt": "2026-02-28T13:42:00Z",
-      "duration": "1m 55s"
+      "agentName": "Content Strategist",
+      "taskDescription": "Ad content strategy: pain points mapped to funnel stages, hooks, emotional angles",
+      "completedAt": "2026-02-28T16:45:00Z",
+      "duration": "1m 33s"
     },
     {
       "id": "comp-008",
-      "agentName": "Strategy Agent",
-      "taskDescription": "Traqd ICP deep-dive — freelancer segment",
-      "completedAt": "2026-02-28T13:15:00Z",
-      "duration": "14m 07s"
-    },
-    {
-      "id": "comp-009",
-      "agentName": "Ad Creative Analyst",
-      "taskDescription": "Analysed 12 competitor video ads from Meta Ads Library",
-      "completedAt": "2026-02-28T12:50:00Z",
-      "duration": "7m 29s"
-    },
-    {
-      "id": "comp-010",
-      "agentName": "Script Writer",
-      "taskDescription": "ElevenLabs voiceover script for Traqd explainer",
-      "completedAt": "2026-02-28T12:22:00Z",
-      "duration": "3m 48s"
+      "agentName": "Builder Agent",
+      "taskDescription": "Casper Operations Dashboard deployed to Vercel",
+      "completedAt": "2026-02-28T16:46:00Z",
+      "duration": "3m 52s"
     }
   ],
   "errorLog": [
-    {
-      "id": "err-001",
-      "timestamp": "2026-02-28T16:15:00Z",
-      "agent": "Delivery Agent",
-      "error": "Vercel deploy failed: build timeout after 60s. Retrying with optimised config.",
-      "severity": "warning"
-    }
+    {"id": "ERR-001", "severity": "high", "agent": "CMO (Casper)", "message": "Blocked conversation polling slow command instead of responding immediately", "timestamp": "2026-02-28T12:49:00Z"},
+    {"id": "ERR-002", "severity": "high", "agent": "CMO (Casper)", "message": "Tried to write ad scripts directly instead of spawning agent pipeline", "timestamp": "2026-02-28T12:50:00Z"},
+    {"id": "ERR-003", "severity": "high", "agent": "CMO (Casper)", "message": "Described report completion but did not send file to chat", "timestamp": "2026-02-28T12:59:00Z"},
+    {"id": "ERR-004", "severity": "critical", "agent": "CMO (Casper)", "message": "Sent report to Kofi without QA review. Broken rendering (all black)", "timestamp": "2026-02-28T13:06:00Z"},
+    {"id": "ERR-005", "severity": "high", "agent": "CMO (Casper)", "message": "Described file location instead of sending to Telegram chat", "timestamp": "2026-02-28T13:12:00Z"},
+    {"id": "ERR-006", "severity": "critical", "agent": "QA Agent", "message": "Approved report with broken rendering (all black, 1 page)", "timestamp": "2026-02-28T13:13:00Z"},
+    {"id": "ERR-007", "severity": "critical", "agent": "QA Agent", "message": "Approved report with vertical text layout (one word per line)", "timestamp": "2026-02-28T13:19:00Z"},
+    {"id": "ERR-008", "severity": "high", "agent": "CMO (Casper)", "message": "Sent same broken report multiple times, made Kofi repeat himself", "timestamp": "2026-02-28T13:19:00Z"},
+    {"id": "ERR-009", "severity": "high", "agent": "CMO (Casper)", "message": "Kept describing output location instead of auto-sending to chat after multiple warnings", "timestamp": "2026-02-28T13:25:00Z"},
+    {"id": "ERR-010", "severity": "high", "agent": "CMO (Casper)", "message": "Skipped Research and Content Strategy steps, jumped straight to Meta Ads Specialist", "timestamp": "2026-02-28T13:37:00Z"}
   ],
   "systemStatus": {
     "xApi": "connected",
     "braveSearch": "connected",
-    "elevenlabs": "connected",
+    "elevenLabs": "connected",
     "vercel": "connected",
     "supabase": "connected",
-    "metaAds": "degraded",
+    "metaAds": "connected",
     "email": "connected"
   }
 }
