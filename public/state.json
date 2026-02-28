@@ -1,68 +1,40 @@
 {
-  "lastUpdated": "2026-02-28T16:47:00Z",
+  "lastUpdated": "2026-02-28T17:04:00Z",
   "kpis": {
     "activeAgents": 1,
-    "tasksCompletedToday": 8,
-    "currentPipelineStage": "Meta Ads Specialist",
-    "errorsToday": 10
+    "tasksCompletedToday": 9,
+    "currentPipelineStage": "Script Writer",
+    "errorsToday": 11
   },
   "pipeline": {
     "stages": ["Research", "Strategy", "Specialist", "Script Writer", "QA", "Delivery"],
-    "currentStage": "Specialist",
-    "completedStages": ["Research", "Strategy"]
+    "currentStage": "Script Writer",
+    "completedStages": ["Research", "Strategy", "Specialist"]
   },
   "activeTasks": [
     {
       "id": "task-001",
-      "agentName": "Meta Ads Specialist",
-      "taskDescription": "Writing script briefs for 3 video ads + 3 static ads",
+      "agentName": "Script Writer",
+      "taskDescription": "Writing 3 video scripts + 3 static ad concepts from Meta Ads Specialist briefs",
       "status": "running",
-      "startedAt": "2026-02-28T16:45:00Z",
-      "estCompletion": "2026-02-28T16:55:00Z"
+      "startedAt": "2026-02-28T16:48:00Z",
+      "estCompletion": "2026-02-28T17:10:00Z"
     }
   ],
   "recentCompletions": [
     {
-      "id": "comp-001",
-      "agentName": "Researcher",
-      "taskDescription": "Pain Point scraping cycle (Reddit, X, Trustpilot, CPA publications)",
-      "completedAt": "2026-02-28T14:54:00Z",
-      "duration": "4m 16s"
+      "id": "comp-009",
+      "agentName": "Meta Ads Specialist",
+      "taskDescription": "Script briefs for 3 video ads + 3 static ads",
+      "completedAt": "2026-02-28T16:48:00Z",
+      "duration": "1m 48s"
     },
     {
-      "id": "comp-002",
+      "id": "comp-008",
       "agentName": "Builder Agent",
-      "taskDescription": "Pain Point Intelligence Report v1 (HTML/PDF)",
-      "completedAt": "2026-02-28T14:59:00Z",
-      "duration": "8m 6s"
-    },
-    {
-      "id": "comp-003",
-      "agentName": "QA Agent",
-      "taskDescription": "QA review of PPIR v1 - FAILED (all black rendering)",
-      "completedAt": "2026-02-28T15:12:00Z",
-      "duration": "5m 2s"
-    },
-    {
-      "id": "comp-004",
-      "agentName": "QA Agent",
-      "taskDescription": "QA review of PPIR v2 - FAILED (vertical text layout)",
-      "completedAt": "2026-02-28T15:20:00Z",
-      "duration": "4m 30s"
-    },
-    {
-      "id": "comp-005",
-      "agentName": "QA Agent",
-      "taskDescription": "QA review of PPIR v3 - PASSED",
-      "completedAt": "2026-02-28T15:25:00Z",
-      "duration": "3m 50s"
-    },
-    {
-      "id": "comp-006",
-      "agentName": "Researcher",
-      "taskDescription": "Meta Ads best practices, competitor creative analysis, audience targeting research",
-      "completedAt": "2026-02-28T16:42:00Z",
-      "duration": "4m 16s"
+      "taskDescription": "Casper Operations Dashboard deployed to Vercel",
+      "completedAt": "2026-02-28T16:46:00Z",
+      "duration": "3m 52s"
     },
     {
       "id": "comp-007",
@@ -72,24 +44,59 @@
       "duration": "1m 33s"
     },
     {
-      "id": "comp-008",
+      "id": "comp-006",
+      "agentName": "Researcher",
+      "taskDescription": "Meta Ads best practices, competitor creative analysis, audience targeting research",
+      "completedAt": "2026-02-28T16:42:00Z",
+      "duration": "4m 16s"
+    },
+    {
+      "id": "comp-005",
+      "agentName": "QA Agent",
+      "taskDescription": "QA review of PPIR v3 - PASSED",
+      "completedAt": "2026-02-28T16:25:00Z",
+      "duration": "3m 50s"
+    },
+    {
+      "id": "comp-004",
+      "agentName": "QA Agent",
+      "taskDescription": "QA review of PPIR v2 - FAILED (vertical text layout)",
+      "completedAt": "2026-02-28T16:20:00Z",
+      "duration": "4m 30s"
+    },
+    {
+      "id": "comp-003",
+      "agentName": "QA Agent",
+      "taskDescription": "QA review of PPIR v1 - FAILED (all black rendering)",
+      "completedAt": "2026-02-28T16:12:00Z",
+      "duration": "5m 2s"
+    },
+    {
+      "id": "comp-002",
       "agentName": "Builder Agent",
-      "taskDescription": "Casper Operations Dashboard deployed to Vercel",
-      "completedAt": "2026-02-28T16:46:00Z",
-      "duration": "3m 52s"
+      "taskDescription": "Pain Point Intelligence Report (HTML/PDF)",
+      "completedAt": "2026-02-28T14:59:00Z",
+      "duration": "8m 6s"
+    },
+    {
+      "id": "comp-001",
+      "agentName": "Researcher",
+      "taskDescription": "Pain Point scraping cycle (Reddit, X, Trustpilot, CPA publications)",
+      "completedAt": "2026-02-28T14:54:00Z",
+      "duration": "4m 16s"
     }
   ],
   "errorLog": [
-    {"id": "ERR-001", "severity": "high", "agent": "CMO (Casper)", "message": "Blocked conversation polling slow command instead of responding immediately", "timestamp": "2026-02-28T12:49:00Z"},
-    {"id": "ERR-002", "severity": "high", "agent": "CMO (Casper)", "message": "Tried to write ad scripts directly instead of spawning agent pipeline", "timestamp": "2026-02-28T12:50:00Z"},
-    {"id": "ERR-003", "severity": "high", "agent": "CMO (Casper)", "message": "Described report completion but did not send file to chat", "timestamp": "2026-02-28T12:59:00Z"},
-    {"id": "ERR-004", "severity": "critical", "agent": "CMO (Casper)", "message": "Sent report to Kofi without QA review. Broken rendering (all black)", "timestamp": "2026-02-28T13:06:00Z"},
-    {"id": "ERR-005", "severity": "high", "agent": "CMO (Casper)", "message": "Described file location instead of sending to Telegram chat", "timestamp": "2026-02-28T13:12:00Z"},
-    {"id": "ERR-006", "severity": "critical", "agent": "QA Agent", "message": "Approved report with broken rendering (all black, 1 page)", "timestamp": "2026-02-28T13:13:00Z"},
-    {"id": "ERR-007", "severity": "critical", "agent": "QA Agent", "message": "Approved report with vertical text layout (one word per line)", "timestamp": "2026-02-28T13:19:00Z"},
-    {"id": "ERR-008", "severity": "high", "agent": "CMO (Casper)", "message": "Sent same broken report multiple times, made Kofi repeat himself", "timestamp": "2026-02-28T13:19:00Z"},
-    {"id": "ERR-009", "severity": "high", "agent": "CMO (Casper)", "message": "Kept describing output location instead of auto-sending to chat after multiple warnings", "timestamp": "2026-02-28T13:25:00Z"},
-    {"id": "ERR-010", "severity": "high", "agent": "CMO (Casper)", "message": "Skipped Research and Content Strategy steps, jumped straight to Meta Ads Specialist", "timestamp": "2026-02-28T13:37:00Z"}
+    {"id": "ERR-011", "severity": "high", "agent": "CMO (Casper)", "message": "Dashboard deployed with mock data instead of real data", "timestamp": "2026-02-28T16:47:00Z"},
+    {"id": "ERR-010", "severity": "high", "agent": "CMO (Casper)", "message": "Skipped Research and Content Strategy steps, jumped to Meta Ads Specialist", "timestamp": "2026-02-28T16:37:00Z"},
+    {"id": "ERR-009", "severity": "high", "agent": "CMO (Casper)", "message": "Kept describing output location instead of auto-sending to chat", "timestamp": "2026-02-28T16:25:00Z"},
+    {"id": "ERR-008", "severity": "high", "agent": "CMO (Casper)", "message": "Sent same broken report multiple times", "timestamp": "2026-02-28T16:19:00Z"},
+    {"id": "ERR-007", "severity": "critical", "agent": "QA Agent", "message": "Approved report with vertical text layout", "timestamp": "2026-02-28T16:19:00Z"},
+    {"id": "ERR-006", "severity": "critical", "agent": "QA Agent", "message": "Approved report with broken rendering (all black, 1 page)", "timestamp": "2026-02-28T16:13:00Z"},
+    {"id": "ERR-005", "severity": "high", "agent": "CMO (Casper)", "message": "Described file location instead of sending to Telegram chat", "timestamp": "2026-02-28T16:12:00Z"},
+    {"id": "ERR-004", "severity": "critical", "agent": "CMO (Casper)", "message": "Sent report to Kofi without QA review. Broken rendering", "timestamp": "2026-02-28T16:06:00Z"},
+    {"id": "ERR-003", "severity": "high", "agent": "CMO (Casper)", "message": "Described report completion but did not send file to chat", "timestamp": "2026-02-28T15:59:00Z"},
+    {"id": "ERR-002", "severity": "high", "agent": "CMO (Casper)", "message": "Tried to write ad scripts directly instead of spawning agent pipeline", "timestamp": "2026-02-28T14:50:00Z"}
   ],
   "systemStatus": {
     "xApi": "connected",
