@@ -1,20 +1,31 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+interface Pipeline {
+  id: string;
+  name: string;
+  stages: string[];
+  currentStage: string;
+  completedStages: string[];
+  startedAt: string;
+  status: "running" | "complete" | "failed";
+}
 
 interface DashboardState {
   lastUpdated: string;
   kpis: {
     activeAgents: number;
     tasksCompletedToday: number;
-    currentPipelineStage: string;
     errorsToday: number;
   };
-  pipeline: {
-    stages: string[];
-    currentStage: string;
-    completedStages: string[];
-  };
+  pipelines: Pipeline[];
   activeTasks: Array<{
     id: string;
     agentName: string;
@@ -34,8 +45,8 @@ interface DashboardState {
     id: string;
     timestamp: string;
     agent: string;
-    error: string;
-    severity: "error" | "warning" | "info";
+    message: string;
+    severity: "critical" | "high" | "medium" | "low" | "error" | "warning" | "info";
   }>;
   systemStatus: Record<string, string>;
 }
@@ -46,16 +57,24 @@ const STATUS_COLORS: Record<string, string> = {
   paused: "#F59E0B",
 };
 
-const STATUS_BG: Record<string, string> = {
-  running: "rgba(134,239,172,0.1)",
-  queued: "rgba(160,160,160,0.1)",
-  paused: "rgba(245,158,11,0.1)",
-};
-
 const SEVERITY_COLORS: Record<string, string> = {
+  critical: "#FF3B30",
+  high: "#EF4444",
+  medium: "#F59E0B",
+  low: "#A0A0A0",
   error: "#EF4444",
   warning: "#F59E0B",
   info: "#86EFAC",
+};
+
+const SEVERITY_ICONS: Record<string, string> = {
+  critical: "🔴",
+  high: "🟠",
+  medium: "🟡",
+  low: "⚪",
+  error: "🔴",
+  warning: "🟡",
+  info: "🟢",
 };
 
 const SYSTEM_ICONS: Record<string, string> = {
@@ -76,6 +95,12 @@ const SYSTEM_LABELS: Record<string, string> = {
   supabase: "Supabase",
   metaAds: "Meta Ads",
   email: "Email",
+};
+
+const PIPELINE_STATUS_COLORS: Record<string, string> = {
+  running: "#86EFAC",
+  complete: "#22C55E",
+  failed: "#EF4444",
 };
 
 function formatTime(iso: string) {
@@ -102,7 +127,15 @@ function timeAgo(iso: string) {
   return `${Math.floor(mins / 60)}h ${mins % 60}m ago`;
 }
 
-function Card({ children, className = "", style = {} }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+function Card({
+  children,
+  className = "",
+  style = {},
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
     <div
       className={className}
@@ -157,18 +190,262 @@ function Badge({ label, color }: { label: string; color: string }) {
   );
 }
 
+function PipelineRow({ pipeline }: { pipeline: Pipeline }) {
+  const [collapsed, setCollapsed] = useState(pipeline.status !== "running");
+  const isComplete = pipeline.status === "complete";
+  const isFailed = pipeline.status === "failed";
+  const statusColor = PIPELINE_STATUS_COLORS[pipeline.status] || "#A0A0A0";
+
+  const completedCount = pipeline.completedStages.length;
+  const totalStages = pipeline.stages.length;
+  const pct = Math.round((completedCount / totalStages) * 100);
+
+  return (
+    <div
+      style={{
+        background: "#111",
+        border: `1px solid ${isComplete ? "rgba(34,197,94,0.2)" : isFailed ? "rgba(239,68,68,0.2)" : "#1F1F1F"}`,
+        borderRadius: "10px",
+        overflow: "hidden",
+        marginBottom: "10px",
+      }}
+    >
+      {/* Header row */}
+      <div
+        onClick={() => setCollapsed((c) => !c)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 16px",
+          cursor: "pointer",
+          userSelect: "none",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Status dot */}
+          <span
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              background: statusColor,
+              flexShrink: 0,
+              display: "inline-block",
+              animation: pipeline.status === "running" ? "pulse 2s infinite" : "none",
+            }}
+          />
+          <span
+            style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 600,
+              fontSize: "14px",
+              color: "#fff",
+            }}
+          >
+            {pipeline.name}
+          </span>
+          <Badge
+            label={pipeline.status.charAt(0).toUpperCase() + pipeline.status.slice(1)}
+            color={statusColor}
+          />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {isComplete || isFailed ? (
+            <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
+              {completedCount}/{totalStages} stages · started {timeAgo(pipeline.startedAt)}
+            </span>
+          ) : (
+            <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
+              {completedCount}/{totalStages} · {pct}%
+            </span>
+          )}
+          <span style={{ color: "#A0A0A0", fontSize: "12px" }}>{collapsed ? "▸" : "▾"}</span>
+        </div>
+      </div>
+
+      {/* Collapsed summary bar for completed/failed */}
+      {collapsed && (isComplete || isFailed) && (
+        <div
+          style={{
+            padding: "0 16px 12px",
+            display: "flex",
+            gap: "6px",
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          {pipeline.stages.map((stage) => {
+            const done = pipeline.completedStages.includes(stage);
+            return (
+              <span
+                key={stage}
+                style={{
+                  fontSize: "11px",
+                  color: done ? "#22C55E" : isFailed ? "#EF4444" : "#A0A0A0",
+                  fontFamily: "'Inter', sans-serif",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                }}
+              >
+                {done ? "✓" : isFailed ? "✗" : "○"} {stage}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Expanded stage flow */}
+      {!collapsed && (
+        <div style={{ padding: "0 16px 16px" }}>
+          {/* Progress bar */}
+          <div
+            style={{
+              height: "2px",
+              background: "#1F1F1F",
+              borderRadius: "2px",
+              marginBottom: "16px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${pct}%`,
+                background: isFailed ? "#EF4444" : "#86EFAC",
+                borderRadius: "2px",
+                transition: "width 0.5s ease",
+              }}
+            />
+          </div>
+
+          {/* Stage pills */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0",
+              overflowX: "auto",
+              paddingBottom: "4px",
+            }}
+          >
+            {pipeline.stages.map((stage, i) => {
+              const isCompleted = pipeline.completedStages.includes(stage);
+              const isCurrent = stage === pipeline.currentStage && pipeline.status === "running";
+              const isLast = i === pipeline.stages.length - 1;
+
+              return (
+                <div key={stage} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: "9999px",
+                        fontSize: "12px",
+                        fontWeight: isCurrent ? 700 : 500,
+                        fontFamily: "'Inter', sans-serif",
+                        whiteSpace: "nowrap",
+                        background: isCurrent
+                          ? "rgba(134,239,172,0.15)"
+                          : isCompleted
+                          ? "rgba(34,197,94,0.08)"
+                          : isFailed && stage === pipeline.currentStage
+                          ? "rgba(239,68,68,0.1)"
+                          : "rgba(255,255,255,0.03)",
+                        border: isCurrent
+                          ? "1px solid rgba(134,239,172,0.5)"
+                          : isCompleted
+                          ? "1px solid rgba(34,197,94,0.3)"
+                          : isFailed && stage === pipeline.currentStage
+                          ? "1px solid rgba(239,68,68,0.3)"
+                          : "1px solid #1F1F1F",
+                        color: isCurrent
+                          ? "#86EFAC"
+                          : isCompleted
+                          ? "#22C55E"
+                          : isFailed && stage === pipeline.currentStage
+                          ? "#EF4444"
+                          : "#666",
+                      }}
+                    >
+                      {isCompleted && <span style={{ marginRight: "4px" }}>✓</span>}
+                      {isFailed && stage === pipeline.currentStage && (
+                        <span style={{ marginRight: "4px" }}>✗</span>
+                      )}
+                      {stage}
+                    </div>
+                    {isCurrent && (
+                      <div
+                        style={{
+                          width: "5px",
+                          height: "5px",
+                          borderRadius: "50%",
+                          background: "#86EFAC",
+                          animation: "pulse 2s infinite",
+                        }}
+                      />
+                    )}
+                  </div>
+                  {!isLast && (
+                    <div
+                      style={{
+                        width: "28px",
+                        height: "1px",
+                        background: isCompleted ? "#22C55E" : "#1F1F1F",
+                        margin: "0 4px",
+                        flexShrink: 0,
+                        marginBottom: isCurrent ? "11px" : "0",
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div
+            style={{
+              marginTop: "12px",
+              fontSize: "11px",
+              color: "#555",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Started {formatDateTime(pipeline.startedAt)}
+            {pipeline.status === "running" && pipeline.currentStage && (
+              <> · Active: <span style={{ color: "#86EFAC" }}>{pipeline.currentStage}</span></>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [state, setState] = useState<DashboardState | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(10);
 
   const fetchState = useCallback(async () => {
     try {
-      const res = await fetch(`/state.json?t=${Date.now()}`);
-      const data = await res.json();
-      setState(data);
+      const { data, error } = await supabase
+        .from("dashboard_state")
+        .select("state")
+        .eq("id", 1)
+        .single();
+      if (error) throw error;
+      setState(data.state as DashboardState);
       setLastRefresh(new Date());
-      setCountdown(30);
+      setCountdown(10);
     } catch (e) {
       console.error("Failed to fetch state:", e);
     }
@@ -176,13 +453,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchState();
-    const interval = setInterval(fetchState, 30000);
+    const interval = setInterval(fetchState, 10000);
     return () => clearInterval(interval);
   }, [fetchState]);
 
   useEffect(() => {
     const tick = setInterval(() => {
-      setCountdown((c) => (c > 0 ? c - 1 : 30));
+      setCountdown((c) => (c > 0 ? c - 1 : 10));
     }, 1000);
     return () => clearInterval(tick);
   }, []);
@@ -205,6 +482,13 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const runningPipelines = (state.pipelines || []).filter((p) => p.status === "running");
+  const donePipelines = (state.pipelines || []).filter((p) => p.status !== "running");
+
+  // Derive active agent count from running pipelines if not explicitly set
+  const activeAgents =
+    state.kpis.activeAgents ?? runningPipelines.length;
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
@@ -241,8 +525,7 @@ export default function Dashboard() {
             }}
           >
             Casper{" "}
-            <span style={{ color: "#86EFAC" }}>Operations</span>{" "}
-            Dashboard
+            <span style={{ color: "#86EFAC" }}>Operations</span> Dashboard
           </span>
         </div>
         <div
@@ -255,13 +538,7 @@ export default function Dashboard() {
             fontFamily: "'Inter', sans-serif",
           }}
         >
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span
               style={{
                 width: "6px",
@@ -276,9 +553,7 @@ export default function Dashboard() {
           </span>
           <span>Refresh in {countdown}s</span>
           {lastRefresh && (
-            <span style={{ display: "none" }} className="sm-show">
-              Updated {formatTime(lastRefresh.toISOString())}
-            </span>
+            <span>Updated {formatTime(lastRefresh.toISOString())}</span>
           )}
         </div>
       </header>
@@ -295,7 +570,7 @@ export default function Dashboard() {
         }
         @media (min-width: 768px) {
           .grid-kpi {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
           }
         }
         .table-scroll {
@@ -352,180 +627,241 @@ export default function Dashboard() {
         {/* Row 1: KPI Cards */}
         <div className="grid-kpi" style={{ marginBottom: "16px" }}>
           <Card>
-            <div style={{ color: "#A0A0A0", fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px", fontFamily: "'Inter', sans-serif" }}>
+            <div
+              style={{
+                color: "#A0A0A0",
+                fontSize: "11px",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: "8px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
               Active Agents
             </div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "36px", color: "#86EFAC" }}>
-              {state.kpis.activeAgents}
+            <div
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 700,
+                fontSize: "36px",
+                color: "#86EFAC",
+              }}
+            >
+              {activeAgents}
             </div>
-            <div style={{ fontSize: "12px", color: "#A0A0A0", marginTop: "4px", fontFamily: "'Inter', sans-serif" }}>agents running</div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#A0A0A0",
+                marginTop: "4px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              {runningPipelines.length} pipeline{runningPipelines.length !== 1 ? "s" : ""} running
+            </div>
           </Card>
 
           <Card>
-            <div style={{ color: "#A0A0A0", fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px", fontFamily: "'Inter', sans-serif" }}>
+            <div
+              style={{
+                color: "#A0A0A0",
+                fontSize: "11px",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: "8px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
               Completed Today
             </div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "36px", color: "#fff" }}>
+            <div
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 700,
+                fontSize: "36px",
+                color: "#fff",
+              }}
+            >
               {state.kpis.tasksCompletedToday}
             </div>
-            <div style={{ fontSize: "12px", color: "#A0A0A0", marginTop: "4px", fontFamily: "'Inter', sans-serif" }}>tasks finished</div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#A0A0A0",
+                marginTop: "4px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              tasks finished
+            </div>
           </Card>
 
           <Card>
-            <div style={{ color: "#A0A0A0", fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px", fontFamily: "'Inter', sans-serif" }}>
-              Pipeline Stage
-            </div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "22px", color: "#86EFAC", marginTop: "6px" }}>
-              {state.kpis.currentPipelineStage}
-            </div>
-            <div style={{ fontSize: "12px", color: "#A0A0A0", marginTop: "4px", fontFamily: "'Inter', sans-serif" }}>current focus</div>
-          </Card>
-
-          <Card>
-            <div style={{ color: "#A0A0A0", fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "8px", fontFamily: "'Inter', sans-serif" }}>
+            <div
+              style={{
+                color: "#A0A0A0",
+                fontSize: "11px",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: "8px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
               Errors Today
             </div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "36px", color: state.kpis.errorsToday > 0 ? "#EF4444" : "#22C55E" }}>
+            <div
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 700,
+                fontSize: "36px",
+                color: state.kpis.errorsToday > 0 ? "#EF4444" : "#22C55E",
+              }}
+            >
               {state.kpis.errorsToday}
             </div>
-            <div style={{ fontSize: "12px", color: "#A0A0A0", marginTop: "4px", fontFamily: "'Inter', sans-serif" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#A0A0A0",
+                marginTop: "4px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
               {state.kpis.errorsToday === 0 ? "all clear" : "need attention"}
             </div>
           </Card>
         </div>
 
-        {/* Row 2: Pipeline */}
+        {/* Row 2: Pipelines */}
         <Card style={{ marginBottom: "16px" }}>
-          <SectionTitle>Pipeline</SectionTitle>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "0",
-              overflowX: "auto",
-              paddingBottom: "4px",
+              justifyContent: "space-between",
+              marginBottom: "16px",
             }}
           >
-            {state.pipeline.stages.map((stage, i) => {
-              const isCompleted = state.pipeline.completedStages.includes(stage);
-              const isCurrent = stage === state.pipeline.currentStage;
-              const isUpcoming = !isCompleted && !isCurrent;
-              const isLast = i === state.pipeline.stages.length - 1;
+            <SectionTitle>Pipelines</SectionTitle>
+            <span
+              style={{
+                fontSize: "12px",
+                color: "#A0A0A0",
+                fontFamily: "'Inter', sans-serif",
+                marginBottom: "16px",
+              }}
+            >
+              {runningPipelines.length} active · {donePipelines.length} done
+            </span>
+          </div>
 
-              return (
-                <div key={stage} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
+          {(state.pipelines || []).length === 0 ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "32px",
+                color: "#A0A0A0",
+                fontSize: "14px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              No pipelines active
+            </div>
+          ) : (
+            <>
+              {/* Running pipelines first */}
+              {runningPipelines.map((p) => (
+                <PipelineRow key={p.id} pipeline={p} />
+              ))}
+              {/* Done pipelines collapsed by default */}
+              {donePipelines.length > 0 && (
+                <>
+                  {runningPipelines.length > 0 && (
                     <div
                       style={{
-                        padding: "8px 16px",
-                        borderRadius: "9999px",
-                        fontSize: "12px",
-                        fontWeight: isCurrent ? 700 : 500,
-                        fontFamily: "'Inter', sans-serif",
-                        whiteSpace: "nowrap",
-                        background: isCurrent
-                          ? "rgba(134,239,172,0.15)"
-                          : isCompleted
-                          ? "rgba(34,197,94,0.08)"
-                          : "rgba(255,255,255,0.04)",
-                        border: isCurrent
-                          ? "1px solid rgba(134,239,172,0.5)"
-                          : isCompleted
-                          ? "1px solid rgba(34,197,94,0.3)"
-                          : "1px solid #1F1F1F",
-                        color: isCurrent ? "#86EFAC" : isCompleted ? "#22C55E" : "#A0A0A0",
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      {isCompleted && <span style={{ marginRight: "4px" }}>✓</span>}
-                      {stage}
-                    </div>
-                    {isCurrent && (
-                      <div
-                        style={{
-                          width: "6px",
-                          height: "6px",
-                          borderRadius: "50%",
-                          background: "#86EFAC",
-                          animation: "pulse 2s infinite",
-                        }}
-                      />
-                    )}
-                  </div>
-                  {!isLast && (
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "1px",
-                        background: isCompleted ? "#22C55E" : "#1F1F1F",
-                        margin: "0 4px",
-                        flexShrink: 0,
-                        marginBottom: isCurrent ? "14px" : "0",
+                        borderTop: "1px solid #1A1A1A",
+                        margin: "8px 0",
+                        paddingTop: "8px",
                       }}
                     />
                   )}
-                </div>
-              );
-            })}
-          </div>
+                  {donePipelines.map((p) => (
+                    <PipelineRow key={p.id} pipeline={p} />
+                  ))}
+                </>
+              )}
+            </>
+          )}
         </Card>
 
         {/* Row 3: Active Tasks */}
         <Card style={{ marginBottom: "16px" }}>
           <SectionTitle>Active Tasks</SectionTitle>
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Agent</th>
-                  <th>Task</th>
-                  <th>Status</th>
-                  <th>Started</th>
-                  <th>Est. Done</th>
-                </tr>
-              </thead>
-              <tbody>
-                {state.activeTasks.map((task) => (
-                  <tr key={task.id}>
-                    <td>
-                      <span
-                        style={{
-                          fontFamily: "'Space Grotesk', sans-serif",
-                          fontWeight: 600,
-                          fontSize: "13px",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {task.agentName}
-                      </span>
-                    </td>
-                    <td style={{ maxWidth: "300px", color: "#D0D0D0" }}>
-                      {task.taskDescription}
-                    </td>
-                    <td>
-                      <Badge
-                        label={task.status.charAt(0).toUpperCase() + task.status.slice(1)}
-                        color={STATUS_COLORS[task.status] || "#A0A0A0"}
-                      />
-                    </td>
-                    <td style={{ color: "#A0A0A0", whiteSpace: "nowrap" }}>
-                      {formatTime(task.startedAt)}
-                    </td>
-                    <td style={{ color: "#A0A0A0", whiteSpace: "nowrap" }}>
-                      {formatTime(task.estCompletion)}
-                    </td>
+          {(state.activeTasks || []).length === 0 ? (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "24px",
+                color: "#A0A0A0",
+                fontSize: "13px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              No active tasks
+            </div>
+          ) : (
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th>Task</th>
+                    <th>Status</th>
+                    <th>Started</th>
+                    <th>Est. Done</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {state.activeTasks.map((task) => (
+                    <tr key={task.id}>
+                      <td>
+                        <span
+                          style={{
+                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontWeight: 600,
+                            fontSize: "13px",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {task.agentName}
+                        </span>
+                      </td>
+                      <td style={{ maxWidth: "300px", color: "#D0D0D0" }}>
+                        {task.taskDescription}
+                      </td>
+                      <td>
+                        <Badge
+                          label={
+                            task.status.charAt(0).toUpperCase() + task.status.slice(1)
+                          }
+                          color={STATUS_COLORS[task.status] || "#A0A0A0"}
+                        />
+                      </td>
+                      <td style={{ color: "#A0A0A0", whiteSpace: "nowrap" }}>
+                        {formatTime(task.startedAt)}
+                      </td>
+                      <td style={{ color: "#A0A0A0", whiteSpace: "nowrap" }}>
+                        {formatTime(task.estCompletion)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
 
         {/* Row 4: Recent Completions */}
@@ -542,7 +878,7 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {state.recentCompletions.map((item) => (
+                {(state.recentCompletions || []).map((item) => (
                   <tr key={item.id}>
                     <td>
                       <span
@@ -559,7 +895,13 @@ export default function Dashboard() {
                     <td style={{ color: "#D0D0D0", maxWidth: "300px" }}>
                       {item.taskDescription}
                     </td>
-                    <td style={{ color: "#A0A0A0", whiteSpace: "nowrap", fontSize: "12px" }}>
+                    <td
+                      style={{
+                        color: "#A0A0A0",
+                        whiteSpace: "nowrap",
+                        fontSize: "12px",
+                      }}
+                    >
                       {timeAgo(item.completedAt)}
                     </td>
                     <td>
@@ -584,7 +926,7 @@ export default function Dashboard() {
         {/* Row 5: Error Log */}
         <Card style={{ marginBottom: "16px" }}>
           <SectionTitle>Error Log</SectionTitle>
-          {state.errorLog.length === 0 ? (
+          {(state.errorLog || []).length === 0 ? (
             <div
               style={{
                 textAlign: "center",
@@ -603,7 +945,13 @@ export default function Dashboard() {
                   key={err.id}
                   style={{
                     background: "#111",
-                    border: `1px solid ${err.severity === "error" ? "rgba(239,68,68,0.3)" : err.severity === "warning" ? "rgba(245,158,11,0.3)" : "rgba(134,239,172,0.3)"}`,
+                    border: `1px solid ${
+                      err.severity === "critical" || err.severity === "error"
+                        ? "rgba(239,68,68,0.3)"
+                        : err.severity === "high" || err.severity === "warning"
+                        ? "rgba(245,158,11,0.3)"
+                        : "rgba(134,239,172,0.15)"
+                    }`,
                     borderRadius: "8px",
                     padding: "12px 16px",
                     display: "flex",
@@ -611,14 +959,8 @@ export default function Dashboard() {
                     alignItems: "flex-start",
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: "16px",
-                      flexShrink: 0,
-                      marginTop: "1px",
-                    }}
-                  >
-                    {err.severity === "error" ? "🔴" : err.severity === "warning" ? "🟡" : "🟢"}
+                  <span style={{ fontSize: "16px", flexShrink: 0, marginTop: "1px" }}>
+                    {SEVERITY_ICONS[err.severity] || "⚪"}
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
@@ -640,19 +982,29 @@ export default function Dashboard() {
                       >
                         {err.agent}
                       </span>
-                      <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
+                      <Badge
+                        label={err.severity.toUpperCase()}
+                        color={SEVERITY_COLORS[err.severity] || "#A0A0A0"}
+                      />
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "#A0A0A0",
+                          fontFamily: "'Inter', sans-serif",
+                        }}
+                      >
                         {formatDateTime(err.timestamp)}
                       </span>
                     </div>
                     <div
                       style={{
                         fontSize: "13px",
-                        color: SEVERITY_COLORS[err.severity],
+                        color: SEVERITY_COLORS[err.severity] || "#A0A0A0",
                         fontFamily: "'Inter', sans-serif",
                         lineHeight: "1.5",
                       }}
                     >
-                      {err.error}
+                      {err.message}
                     </div>
                   </div>
                 </div>
@@ -665,12 +1017,18 @@ export default function Dashboard() {
         <Card>
           <SectionTitle>System Status</SectionTitle>
           <div className="system-grid">
-            {Object.entries(state.systemStatus).map(([key, status]) => (
+            {Object.entries(state.systemStatus || {}).map(([key, status]) => (
               <div
                 key={key}
                 style={{
                   background: "#111",
-                  border: `1px solid ${status === "connected" ? "rgba(34,197,94,0.2)" : status === "degraded" ? "rgba(245,158,11,0.2)" : "rgba(239,68,68,0.2)"}`,
+                  border: `1px solid ${
+                    status === "connected"
+                      ? "rgba(34,197,94,0.2)"
+                      : status === "degraded"
+                      ? "rgba(245,158,11,0.2)"
+                      : "rgba(239,68,68,0.2)"
+                  }`,
                   borderRadius: "8px",
                   padding: "10px 12px",
                   display: "flex",
@@ -689,7 +1047,7 @@ export default function Dashboard() {
                     textAlign: "center",
                   }}
                 >
-                  {SYSTEM_LABELS[key]}
+                  {SYSTEM_LABELS[key] || key}
                 </span>
                 <span
                   style={{
@@ -741,10 +1099,22 @@ export default function Dashboard() {
               gap: "8px",
             }}
           >
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#A0A0A0" }}>
-              Casper · Traqd CMO Operations · v1.0
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "12px",
+                color: "#A0A0A0",
+              }}
+            >
+              Casper · Traqd CMO Operations · v2.0
             </span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#A0A0A0" }}>
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "12px",
+                color: "#A0A0A0",
+              }}
+            >
               State updated {timeAgo(state.lastUpdated)}
             </span>
           </div>

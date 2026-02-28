@@ -1,16 +1,30 @@
 {
-  "lastUpdated": "2026-02-28T17:04:00Z",
+  "lastUpdated": "2026-02-28T17:09:00Z",
   "kpis": {
-    "activeAgents": 1,
+    "activeAgents": 2,
     "tasksCompletedToday": 9,
-    "currentPipelineStage": "Script Writer",
     "errorsToday": 11
   },
-  "pipeline": {
-    "stages": ["Research", "Strategy", "Specialist", "Script Writer", "QA", "Delivery"],
-    "currentStage": "Script Writer",
-    "completedStages": ["Research", "Strategy", "Specialist"]
-  },
+  "pipelines": [
+    {
+      "id": "ad-scripts",
+      "name": "Ad Scripts Pipeline",
+      "stages": ["Research", "Strategy", "Specialist", "Script Writer", "QA", "Delivery"],
+      "currentStage": "Script Writer",
+      "completedStages": ["Research", "Strategy", "Specialist"],
+      "startedAt": "2026-02-28T16:35:00Z",
+      "status": "running"
+    },
+    {
+      "id": "dashboard-rebuild",
+      "name": "Dashboard Rebuild",
+      "stages": ["Build", "Deploy", "Verify"],
+      "currentStage": "Deploy",
+      "completedStages": ["Build"],
+      "startedAt": "2026-02-28T17:07:00Z",
+      "status": "running"
+    }
+  ],
   "activeTasks": [
     {
       "id": "task-001",
@@ -19,6 +33,14 @@
       "status": "running",
       "startedAt": "2026-02-28T16:48:00Z",
       "estCompletion": "2026-02-28T17:10:00Z"
+    },
+    {
+      "id": "task-002",
+      "agentName": "Builder Agent",
+      "taskDescription": "Rebuilding Casper Dashboard with Supabase real-time data + multi-pipeline UI",
+      "status": "running",
+      "startedAt": "2026-02-28T17:07:00Z",
+      "estCompletion": "2026-02-28T17:20:00Z"
     }
   ],
   "recentCompletions": [
@@ -32,7 +54,7 @@
     {
       "id": "comp-008",
       "agentName": "Builder Agent",
-      "taskDescription": "Casper Operations Dashboard deployed to Vercel",
+      "taskDescription": "Casper Operations Dashboard v1 deployed to Vercel",
       "completedAt": "2026-02-28T16:46:00Z",
       "duration": "3m 52s"
     },
@@ -101,7 +123,7 @@
   "systemStatus": {
     "xApi": "connected",
     "braveSearch": "connected",
-    "elevenLabs": "connected",
+    "elevenlabs": "connected",
     "vercel": "connected",
     "supabase": "connected",
     "metaAds": "connected",
