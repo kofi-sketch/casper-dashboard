@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import Header from "../components/Header";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -72,7 +73,6 @@ function timeAgo(dateStr: string): string {
 
 export default function EmailPage() {
   const isMobile = useIsMobile();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [sends, setSends] = useState<EmailSend[]>([]);
   const [search, setSearch] = useState("");
@@ -154,91 +154,7 @@ export default function EmailPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      {/* Header */}
-      <header
-        style={{
-          background: "#0A0A0A",
-          borderBottom: "1px solid #1F1F1F",
-          padding: isMobile ? "0 12px" : "0 24px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "12px" }}>
-          <img src="https://traqd.io/favicon.ico" alt="Traqd" width={28} height={28} style={{ borderRadius: "6px" }} />
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: isMobile ? "14px" : "16px", color: "#fff" }}>
-              Casper <span style={{ color: "#86EFAC" }}>Ops</span>
-            </span>
-          </Link>
-          {!isMobile && (
-            <>
-              <span style={{ color: "#1F1F1F", fontSize: "20px" }}>|</span>
-              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "14px", color: "#86EFAC" }}>
-                📧 Email Management
-              </span>
-            </>
-          )}
-        </div>
-        {isMobile ? (
-          <div style={{ position: "relative" }}>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              style={{ background: "none", border: "none", color: "#A0A0A0", fontSize: "22px", cursor: "pointer", padding: "4px 8px" }}
-            >
-              ☰
-            </button>
-            {menuOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "40px",
-                  right: 0,
-                  background: "#0D0D0D",
-                  border: "1px solid #1F1F1F",
-                  borderRadius: "8px",
-                  padding: "8px 0",
-                  minWidth: "140px",
-                  zIndex: 200,
-                }}
-              >
-                {[
-                  { href: "/", label: "🏠 Dashboard" },
-                  { href: "/history", label: "📜 History" },
-                  { href: "/email", label: "📧 Email", active: true },
-                ].map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    style={{
-                      display: "block",
-                      padding: "8px 16px",
-                      color: item.active ? "#86EFAC" : "#A0A0A0",
-                      textDecoration: "none",
-                      fontSize: "13px",
-                      fontFamily: "'Inter', sans-serif",
-                    }}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "12px", color: "#A0A0A0" }}>
-            <Link href="/" style={{ color: "#A0A0A0", textDecoration: "none", fontFamily: "'Inter', sans-serif" }}>Dashboard</Link>
-            <Link href="/history" style={{ color: "#A0A0A0", textDecoration: "none", fontFamily: "'Inter', sans-serif" }}>History</Link>
-            <span style={{ color: "#86EFAC", fontFamily: "'Inter', sans-serif" }}>Email</span>
-          </div>
-        )}
-      </header>
+      <Header activePage="email" />
 
       <main style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1200px", margin: "0 auto" }}>
         {/* KPI Row */}

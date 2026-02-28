@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import Header from "./components/Header";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -511,75 +512,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      {/* Header */}
-      <header
-        style={{
-          background: "#0A0A0A",
-          borderBottom: "1px solid #1F1F1F",
-          padding: "0 24px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://traqd.io/favicon.ico"
-            alt="Traqd"
-            width={28}
-            height={28}
-            style={{ borderRadius: "6px" }}
-          />
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
-              fontSize: "16px",
-              color: "#fff",
-            }}
-          >
-            Casper{" "}
-            <span style={{ color: "#86EFAC" }}>Operations</span> Dashboard
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <Link href="/email" style={{ color: "#A0A0A0", textDecoration: "none", fontSize: "12px", fontFamily: "'Inter', sans-serif" }}>📧 Email</Link>
-          <Link href="/history" style={{ color: "#A0A0A0", textDecoration: "none", fontSize: "12px", fontFamily: "'Inter', sans-serif" }}>History</Link>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            fontSize: "12px",
-            color: "#A0A0A0",
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span
-              style={{
-                width: "6px",
-                height: "6px",
-                borderRadius: "50%",
-                background: "#22C55E",
-                display: "inline-block",
-                animation: "pulse 2s infinite",
-              }}
-            />
-            Live
-          </span>
-          <span>Refresh in {countdown}s</span>
-          {lastRefresh && (
-            <span>Updated {formatTime(lastRefresh.toISOString())}</span>
-          )}
-        </div>
-        </div>
-      </header>
+      <Header activePage="dashboard" countdown={countdown} lastRefresh={lastRefresh} formatTime={formatTime} />
 
       <style>{`
         @keyframes pulse {

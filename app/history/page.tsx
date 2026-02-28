@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import Header from "../components/Header";
 
 interface PipelineHistoryEntry {
   id: number;
@@ -313,61 +314,7 @@ export default function HistoryPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      {/* Header */}
-      <header
-        style={{
-          background: "#0A0A0A",
-          borderBottom: "1px solid #1F1F1F",
-          padding: "0 24px",
-          height: "60px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://traqd.io/favicon.ico"
-            alt="Traqd"
-            width={28}
-            height={28}
-            style={{ borderRadius: "6px" }}
-          />
-          <span
-            style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
-              fontSize: "16px",
-              color: "#fff",
-            }}
-          >
-            Casper{" "}
-            <span style={{ color: "#86EFAC" }}>Pipeline History</span>
-          </span>
-        </div>
-        <Link
-          href="/"
-          style={{
-            fontSize: "12px",
-            color: "#86EFAC",
-            fontFamily: "'Inter', sans-serif",
-            textDecoration: "none",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 12px",
-            background: "rgba(134,239,172,0.08)",
-            border: "1px solid rgba(134,239,172,0.2)",
-            borderRadius: "6px",
-          }}
-        >
-          ← Dashboard
-        </Link>
-      </header>
+      <Header activePage="history" />
 
       <style>{`
         @keyframes pulse {
