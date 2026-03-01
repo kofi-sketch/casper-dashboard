@@ -151,6 +151,10 @@ def get_email_template(stage, name):
   
   <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #000;">You're not the only one tired of guessing, {name}.</h1>
   
+  <div style="text-align: center; margin: 24px 0;">
+    <img src="https://casperops.vercel.app/traqd-hero-phone.png" alt="Traqd App" style="max-width: 280px; width: 280px; border-radius: 12px;" />
+  </div>
+  
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
     Here's what early testers are telling us:
   </p>
@@ -233,6 +237,10 @@ def get_email_template(stage, name):
   
   <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #000;">Let's address the elephant in the room, {name}.</h1>
   
+  <div style="text-align: center; margin: 24px 0;">
+    <img src="https://casperops.vercel.app/traqd-ai-cfo.jpg" alt="Traqd AI CFO" style="max-width: 280px; width: 280px; border-radius: 12px;" />
+  </div>
+  
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
     We hear these a lot. Let's be real about each one:
   </p>
@@ -274,6 +282,10 @@ def get_email_template(stage, name):
   <img src="https://traqd.io/traqd-logo.png" alt="Traqd" style="height: 32px; margin-bottom: 30px;" />
   
   <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #000;">{name}, your spot is secured — but the price won't stay this low.</h1>
+  
+  <div style="text-align: center; margin: 24px 0;">
+    <img src="https://casperops.vercel.app/traqd-analytics-sq.jpg" alt="Traqd Analytics" style="max-width: 280px; width: 280px; border-radius: 12px;" />
+  </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
     Because you joined the waitlist, you've locked in our <strong>launch pricing forever</strong>. Here's what that looks like:
@@ -319,6 +331,10 @@ def get_email_template(stage, name):
   <img src="https://traqd.io/traqd-logo.png" alt="Traqd" style="height: 32px; margin-bottom: 30px;" />
   
   <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #000;">{name}, this is it.</h1>
+  
+  <div style="text-align: center; margin: 24px 0;">
+    <img src="https://casperops.vercel.app/traqd-hero-phone.png" alt="Traqd App" style="max-width: 280px; width: 280px; border-radius: 12px;" />
+  </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
     Over the past week, we've shown you:
