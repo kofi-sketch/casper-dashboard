@@ -89,6 +89,10 @@ def get_email_template(stage, name):
     Sound familiar? Tomorrow we'll show you how we're fixing this. For good.
   </p>
   
+  <div style="background: #000; border-radius: 16px; padding: 20px; margin: 30px 0; text-align: center;">
+    <img src="https://casperops.vercel.app/traqd-ai-cfo.jpg" alt="Traqd AI — Your Personal CFO" style="max-width: 100%; border-radius: 12px;" />
+  </div>
+  
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
     — Kofi & Curtis
   </p>
@@ -110,7 +114,7 @@ def get_email_template(stage, name):
   </p>
   
   <div style="text-align: center; margin: 30px 0; background: #000; border-radius: 16px; padding: 20px;">
-    <img src="https://casperops.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
+    <img src="https://casperops.vercel.app/traqd-analytics.jpg" alt="Traqd Analytics Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
   </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
