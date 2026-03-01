@@ -15,7 +15,7 @@ function useIsMobile(breakpoint = 768) {
 }
 
 interface HeaderProps {
-  activePage: "dashboard" | "history" | "email";
+  activePage: "dashboard" | "history" | "email" | "content";
   countdown?: number;
   lastRefresh?: Date | null;
   formatTime?: (iso: string) => string;
@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/", key: "dashboard", label: "🏠 Dashboard" },
   { href: "/history", key: "history", label: "📜 History" },
   { href: "/email", key: "email", label: "📧 Email" },
+  { href: "/content", key: "content", label: "🧠 Content" },
 ];
 
 export default function Header({ activePage, countdown, lastRefresh, formatTime }: HeaderProps) {
