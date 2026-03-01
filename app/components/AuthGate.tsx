@@ -2,7 +2,7 @@
 
 import { useState, useEffect, ReactNode } from "react";
 
-const PASSWORD = "traqd2026";
+const PASSWORD = "T35t@m3nt54321234567891011";
 const STORAGE_KEY = "casper_auth";
 
 export default function AuthGate({ children }: { children: ReactNode }) {
