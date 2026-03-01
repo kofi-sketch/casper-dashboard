@@ -53,6 +53,20 @@ interface DashboardState {
   systemStatus: Record<string, string>;
 }
 
+const DEFAULT_DASHBOARD_STATE: DashboardState = {
+  lastUpdated: "",
+  kpis: {
+    activeAgents: 0,
+    tasksCompletedToday: 0,
+    errorsToday: 0,
+  },
+  pipelines: [],
+  activeTasks: [],
+  recentCompletions: [],
+  errorLog: [],
+  systemStatus: {},
+};
+
 const STATUS_COLORS: Record<string, string> = {
   running: "#86EFAC",
   queued: "#A0A0A0",
@@ -105,15 +119,151 @@ const PIPELINE_STATUS_COLORS: Record<string, string> = {
   failed: "#EF4444",
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function asString(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function toDateOrNull(iso: string) {
+  const parsed = new Date(iso);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function normalizePipelineStatus(value: unknown): Pipeline["status"] {
+  return value === "running" || value === "complete" || value === "failed" ? value : "running";
+}
+
+function normalizeTaskStatus(value: unknown): DashboardState["activeTasks"][number]["status"] {
+  return value === "running" || value === "queued" || value === "paused" ? value : "running";
+}
+
+function normalizeSeverity(value: unknown): DashboardState["errorLog"][number]["severity"] {
+  return value === "critical" ||
+    value === "high" ||
+    value === "medium" ||
+    value === "low" ||
+    value === "error" ||
+    value === "warning" ||
+    value === "info"
+    ? value
+    : "info";
+}
+
+function parseDashboardState(rawState: unknown): DashboardState {
+  if (!isRecord(rawState)) {
+    return DEFAULT_DASHBOARD_STATE;
+  }
+
+  const kpisRaw = isRecord(rawState.kpis) ? rawState.kpis : {};
+  const pipelinesRaw = Array.isArray(rawState.pipelines) ? rawState.pipelines : [];
+  const activeTasksRaw = Array.isArray(rawState.activeTasks) ? rawState.activeTasks : [];
+  const recentCompletionsRaw = Array.isArray(rawState.recentCompletions) ? rawState.recentCompletions : [];
+  const errorLogCandidate = Array.isArray(rawState.errorLog)
+    ? rawState.errorLog
+    : Array.isArray(rawState.errors)
+    ? rawState.errors
+    : [];
+  const systemStatusRaw = isRecord(rawState.systemStatus) ? rawState.systemStatus : {};
+
+  return {
+    lastUpdated: asString(rawState.lastUpdated, new Date().toISOString()),
+    kpis: {
+      activeAgents: asNumber(kpisRaw.activeAgents, 0),
+      tasksCompletedToday: asNumber(kpisRaw.tasksCompletedToday, 0),
+      errorsToday: asNumber(kpisRaw.errorsToday, 0),
+    },
+    pipelines: pipelinesRaw
+      .map((item, index): Pipeline | null => {
+        if (!isRecord(item)) {
+          return null;
+        }
+        const stages = asStringArray(item.stages);
+        return {
+          id: asString(item.id, `pipeline-${index}`),
+          name: asString(item.name, "Untitled Pipeline"),
+          stages,
+          currentStage: asString(item.currentStage, stages[0] || ""),
+          completedStages: asStringArray(item.completedStages),
+          startedAt: asString(item.startedAt, new Date().toISOString()),
+          status: normalizePipelineStatus(item.status),
+        };
+      })
+      .filter((item): item is Pipeline => item !== null),
+    activeTasks: activeTasksRaw
+      .map((item, index): DashboardState["activeTasks"][number] | null => {
+        if (!isRecord(item)) {
+          return null;
+        }
+        const startedAt = asString(item.startedAt, new Date().toISOString());
+        return {
+          id: asString(item.id, `task-${index}`),
+          agentName: asString(item.agentName, asString(item.agent, "Unknown Agent")),
+          taskDescription: asString(item.taskDescription, asString(item.task, "No description")),
+          status: normalizeTaskStatus(item.status),
+          startedAt,
+          estCompletion: asString(item.estCompletion, startedAt),
+        };
+      })
+      .filter((item): item is DashboardState["activeTasks"][number] => item !== null),
+    recentCompletions: recentCompletionsRaw
+      .map((item, index): DashboardState["recentCompletions"][number] | null => {
+        if (!isRecord(item)) {
+          return null;
+        }
+        return {
+          id: asString(item.id, `completion-${index}`),
+          agentName: asString(item.agentName, asString(item.agent, "Unknown Agent")),
+          taskDescription: asString(item.taskDescription, asString(item.task, "No description")),
+          completedAt: asString(item.completedAt, new Date().toISOString()),
+          duration: asString(item.duration, "—"),
+        };
+      })
+      .filter((item): item is DashboardState["recentCompletions"][number] => item !== null),
+    errorLog: errorLogCandidate
+      .map((item, index): DashboardState["errorLog"][number] | null => {
+        if (!isRecord(item)) {
+          return null;
+        }
+        return {
+          id: asString(item.id, `error-${index}`),
+          timestamp: asString(item.timestamp, new Date().toISOString()),
+          agent: asString(item.agent, "System"),
+          message: asString(item.message, "Unknown error"),
+          severity: normalizeSeverity(item.severity),
+        };
+      })
+      .filter((item): item is DashboardState["errorLog"][number] => item !== null),
+    systemStatus: Object.entries(systemStatusRaw).reduce<Record<string, string>>((acc, [key, value]) => {
+      acc[key] = asString(value, "unknown");
+      return acc;
+    }, {}),
+  };
+}
+
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-GB", {
+  const parsed = toDateOrNull(iso);
+  if (!parsed) return "—";
+  return parsed.toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
   });
 }
 
 function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("en-GB", {
+  const parsed = toDateOrNull(iso);
+  if (!parsed) return "—";
+  return parsed.toLocaleString("en-GB", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -122,7 +272,9 @@ function formatDateTime(iso: string) {
 }
 
 function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
+  const parsed = toDateOrNull(iso);
+  if (!parsed) return "unknown";
+  const diff = Date.now() - parsed.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;
@@ -200,7 +352,7 @@ function PipelineRow({ pipeline }: { pipeline: Pipeline }) {
 
   const completedCount = pipeline.completedStages.length;
   const totalStages = pipeline.stages.length;
-  const pct = Math.round((completedCount / totalStages) * 100);
+  const pct = totalStages > 0 ? Math.round((completedCount / totalStages) * 100) : 0;
 
   return (
     <div
@@ -454,6 +606,7 @@ export default function Dashboard() {
   const [state, setState] = useState<DashboardState | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState(10);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchState = useCallback(async () => {
     try {
@@ -463,11 +616,14 @@ export default function Dashboard() {
         .eq("id", 1)
         .single();
       if (error) throw error;
-      setState(data.state as DashboardState);
+      setState(parseDashboardState(data?.state));
+      setLoadError(null);
       setLastRefresh(new Date());
       setCountdown(10);
     } catch (e) {
       console.error("Failed to fetch state:", e);
+      setState((current) => current ?? DEFAULT_DASHBOARD_STATE);
+      setLoadError("Unable to refresh dashboard data.");
     }
   }, []);
 
@@ -498,7 +654,7 @@ export default function Dashboard() {
           fontSize: "16px",
         }}
       >
-        Loading Casper Operations...
+        {loadError || "Loading Casper Operations..."}
       </div>
     );
   }

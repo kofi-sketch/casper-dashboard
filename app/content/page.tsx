@@ -60,6 +60,99 @@ interface GrowthPoint {
 
 const ACCOUNT_HANDLES = ["@gettraqd", "@igobykofi"];
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function asString(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asNullableString(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function normalizeAccount(value: unknown): ContentPost["account"] {
+  return value === "@igobykofi" ? "@igobykofi" : "@gettraqd";
+}
+
+function normalizePostStatus(value: unknown): ContentPost["status"] {
+  return value === "scheduled" || value === "posted" || value === "draft" ? value : "draft";
+}
+
+function normalizeResearchStatus(value: unknown): ContentResearch["status"] {
+  return value === "new" || value === "queued" || value === "ignored" ? value : "new";
+}
+
+function normalizeReplyStatus(value: unknown): ContentReply["status"] {
+  return value === "queued" || value === "sent" || value === "skipped" ? value : "queued";
+}
+
+function normalizePost(row: unknown, index: number): ContentPost | null {
+  if (!isRecord(row)) return null;
+  const engagement = isRecord(row.engagement_metrics) ? row.engagement_metrics : null;
+  return {
+    id: asString(row.id, `post-${index}`),
+    account: normalizeAccount(row.account),
+    content: asString(row.content, ""),
+    scheduled_at: asNullableString(row.scheduled_at),
+    posted_at: asNullableString(row.posted_at),
+    status: normalizePostStatus(row.status),
+    post_id: asNullableString(row.post_id),
+    engagement_metrics: engagement
+      ? {
+          likes: asNumber(engagement.likes, 0),
+          replies: asNumber(engagement.replies, 0),
+          reposts: asNumber(engagement.reposts, 0),
+          impressions: asNumber(engagement.impressions, 0),
+          followers_snapshot: asNumber(engagement.followers_snapshot, 0),
+        }
+      : null,
+  };
+}
+
+function normalizeResearch(row: unknown, index: number): ContentResearch | null {
+  if (!isRecord(row)) return null;
+  return {
+    id: asString(row.id, `research-${index}`),
+    author_handle: asString(row.author_handle, "unknown"),
+    author_followers: asNumber(row.author_followers, 0),
+    post_preview: asString(row.post_preview, ""),
+    post_url: asString(row.post_url, ""),
+    engagement_score: asNumber(row.engagement_score, 0),
+    found_at: asString(row.found_at, new Date().toISOString()),
+    status: normalizeResearchStatus(row.status),
+  };
+}
+
+function normalizeReply(row: unknown, index: number): ContentReply | null {
+  if (!isRecord(row)) return null;
+  return {
+    id: asString(row.id, `reply-${index}`),
+    target_post_url: asString(row.target_post_url, ""),
+    target_author: asString(row.target_author, "unknown"),
+    suggested_reply: asString(row.suggested_reply, ""),
+    account: normalizeAccount(row.account),
+    status: normalizeReplyStatus(row.status),
+    sent_at: asNullableString(row.sent_at),
+  };
+}
+
+function normalizeTargetAccount(row: unknown, index: number): TargetAccount | null {
+  if (!isRecord(row)) return null;
+  return {
+    id: asString(row.id, `target-${index}`),
+    handle: asString(row.handle, ""),
+    followers: asNumber(row.followers, 0),
+    niche: asString(row.niche, ""),
+    last_engaged_at: asNullableString(row.last_engaged_at),
+  };
+}
+
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -103,7 +196,9 @@ function formatCompact(value: number) {
 
 function formatTime(dateIso: string | null) {
   if (!dateIso) return "—";
-  return new Date(dateIso).toLocaleTimeString("en-US", {
+  const parsed = new Date(dateIso);
+  if (Number.isNaN(parsed.getTime())) return "—";
+  return parsed.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -111,14 +206,18 @@ function formatTime(dateIso: string | null) {
 
 function formatShortDate(dateIso: string | null) {
   if (!dateIso) return "Never";
-  return new Date(dateIso).toLocaleDateString("en-US", {
+  const parsed = new Date(dateIso);
+  if (Number.isNaN(parsed.getTime())) return "Never";
+  return parsed.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
 }
 
 function timeAgo(dateIso: string) {
-  const diff = Date.now() - new Date(dateIso).getTime();
+  const parsed = new Date(dateIso);
+  if (Number.isNaN(parsed.getTime())) return "unknown";
+  const diff = Date.now() - parsed.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;
@@ -150,6 +249,7 @@ function getSupabaseClient() {
 export default function ContentPage() {
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [posts, setPosts] = useState<ContentPost[]>([]);
   const [research, setResearch] = useState<ContentResearch[]>([]);
   const [replies, setReplies] = useState<ContentReply[]>([]);
@@ -164,50 +264,73 @@ export default function ContentPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const weekStart = startOfWeek();
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 7);
+    try {
+      const weekStart = startOfWeek();
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 7);
 
-    const [postsRes, researchRes, repliesRes, targetsRes] = await Promise.all([
-      getSupabaseClient()
-        .from("content_posts")
-        .select("*")
-        .or(`scheduled_at.gte.${weekStart.toISOString()},posted_at.gte.${weekStart.toISOString()}`)
-        .order("scheduled_at", { ascending: true }),
-      getSupabaseClient()
-        .from("content_research")
-        .select("*")
-        .gte("found_at", startOfDay().toISOString())
-        .lte("found_at", endOfDay().toISOString())
-        .order("engagement_score", { ascending: false })
-        .limit(8),
-      getSupabaseClient()
-        .from("content_replies")
-        .select("*")
-        .order("status", { ascending: true })
-        .order("sent_at", { ascending: false })
-        .limit(20),
-      getSupabaseClient()
-        .from("target_accounts")
-        .select("*")
-        .order("followers", { ascending: false }),
-    ]);
+      const [postsRes, researchRes, repliesRes, targetsRes] = await Promise.all([
+        getSupabaseClient()
+          .from("content_posts")
+          .select("*")
+          .or(`scheduled_at.gte.${weekStart.toISOString()},posted_at.gte.${weekStart.toISOString()}`)
+          .order("scheduled_at", { ascending: true }),
+        getSupabaseClient()
+          .from("content_research")
+          .select("*")
+          .gte("found_at", startOfDay().toISOString())
+          .lte("found_at", endOfDay().toISOString())
+          .order("engagement_score", { ascending: false })
+          .limit(8),
+        getSupabaseClient()
+          .from("content_replies")
+          .select("*")
+          .order("status", { ascending: true })
+          .order("sent_at", { ascending: false })
+          .limit(20),
+        getSupabaseClient()
+          .from("target_accounts")
+          .select("*")
+          .order("followers", { ascending: false }),
+      ]);
 
-    if (postsRes.data) {
-      const visible = postsRes.data.filter((item) => {
-        const sched = item.scheduled_at ? new Date(item.scheduled_at) : null;
-        const posted = item.posted_at ? new Date(item.posted_at) : null;
-        return (sched && sched < weekEnd) || (posted && posted < weekEnd);
-      });
-      setPosts(visible as ContentPost[]);
-    } else {
+      if (postsRes.error) throw postsRes.error;
+      if (researchRes.error) throw researchRes.error;
+      if (repliesRes.error) throw repliesRes.error;
+      if (targetsRes.error) throw targetsRes.error;
+
+      if (postsRes.data) {
+        const visible = postsRes.data
+          .map((item, index) => normalizePost(item, index))
+          .filter((item): item is ContentPost => item !== null)
+          .filter((item) => {
+            const sched = item.scheduled_at ? new Date(item.scheduled_at) : null;
+            const posted = item.posted_at ? new Date(item.posted_at) : null;
+            return (sched && sched < weekEnd) || (posted && posted < weekEnd);
+          });
+        setPosts(visible);
+      } else {
+        setPosts([]);
+      }
+
+      setResearch((researchRes.data || []).map((item, index) => normalizeResearch(item, index)).filter((item): item is ContentResearch => item !== null));
+      setReplies((repliesRes.data || []).map((item, index) => normalizeReply(item, index)).filter((item): item is ContentReply => item !== null));
+      setTargetAccounts(
+        (targetsRes.data || [])
+          .map((item, index) => normalizeTargetAccount(item, index))
+          .filter((item): item is TargetAccount => item !== null)
+      );
+      setLoadError(null);
+    } catch (error) {
+      console.error("Failed to fetch content dashboard data:", error);
       setPosts([]);
+      setResearch([]);
+      setReplies([]);
+      setTargetAccounts([]);
+      setLoadError("Unable to refresh content data.");
+    } finally {
+      setLoading(false);
     }
-
-    setResearch((researchRes.data || []) as ContentResearch[]);
-    setReplies((repliesRes.data || []) as ContentReply[]);
-    setTargetAccounts((targetsRes.data || []) as TargetAccount[]);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -217,6 +340,7 @@ export default function ContentPage() {
   }, [fetchData]);
 
   const queueReply = async (item: ContentResearch) => {
+    if (!item.post_url) return;
     const account = item.author_followers > 50000 ? "@gettraqd" : "@igobykofi";
     const suggested = `Strong point on this, @${item.author_handle}. Curious which framework is driving your current growth loop?`;
 
@@ -362,7 +486,7 @@ export default function ContentPage() {
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>Loading…</span>
+        <span style={{ color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>{loadError || "Loading…"}</span>
       </div>
     );
   }
@@ -505,21 +629,21 @@ export default function ContentPage() {
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                       <button
                         onClick={() => queueReply(item)}
-                        disabled={item.status === "queued"}
+                        disabled={item.status === "queued" || !item.post_url}
                         style={{
-                          background: item.status === "queued" ? "#1F1F1F" : "rgba(134,239,172,0.12)",
-                          color: item.status === "queued" ? "#555" : "#86EFAC",
-                          border: `1px solid ${item.status === "queued" ? "#1F1F1F" : "rgba(134,239,172,0.35)"}`,
+                          background: item.status === "queued" || !item.post_url ? "#1F1F1F" : "rgba(134,239,172,0.12)",
+                          color: item.status === "queued" || !item.post_url ? "#555" : "#86EFAC",
+                          border: `1px solid ${item.status === "queued" || !item.post_url ? "#1F1F1F" : "rgba(134,239,172,0.35)"}`,
                           borderRadius: "8px",
                           padding: "6px 10px",
                           fontSize: "11px",
                           fontFamily: "'Inter', sans-serif",
-                          cursor: item.status === "queued" ? "default" : "pointer",
+                          cursor: item.status === "queued" || !item.post_url ? "default" : "pointer",
                         }}
                       >
-                        {item.status === "queued" ? "Queued" : "Queue Reply"}
+                        {item.status === "queued" ? "Queued" : item.post_url ? "Queue Reply" : "No URL"}
                       </button>
-                      <Link href={item.post_url} target="_blank" style={{ color: "#A0A0A0", fontSize: "11px", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}>
+                      <Link href={item.post_url || "#"} target="_blank" style={{ color: "#A0A0A0", fontSize: "11px", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}>
                         View Post ↗
                       </Link>
                     </div>
@@ -558,7 +682,7 @@ export default function ContentPage() {
                     <div style={{ fontSize: "12px", color: "#D0D0D0", fontFamily: "'Inter', sans-serif", lineHeight: 1.35, marginBottom: "8px" }}>
                       {reply.suggested_reply}
                     </div>
-                    <Link href={reply.target_post_url} target="_blank" style={{ color: "#555", fontSize: "11px", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}>
+                    <Link href={reply.target_post_url || "#"} target="_blank" style={{ color: "#555", fontSize: "11px", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}>
                       Target post ↗
                     </Link>
                   </div>
