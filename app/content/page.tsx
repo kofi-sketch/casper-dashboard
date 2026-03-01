@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import Header from "../components/Header";
 
+
 interface ContentPost {
   id: string;
   account: "@gettraqd" | "@igobykofi";
@@ -194,7 +195,7 @@ function formatCompact(value: number) {
   }).format(value);
 }
 
-function formatTime(dateIso: string | null) {
+function formatPostTime(dateIso: string | null) {
   if (!dateIso) return "—";
   const parsed = new Date(dateIso);
   if (Number.isNaN(parsed.getTime())) return "—";
@@ -226,6 +227,15 @@ function timeAgo(dateIso: string) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
+function formatTime(iso: string) {
+  const parsed = new Date(iso);
+  if (isNaN(parsed.getTime())) return "—";
+  return parsed.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function chartPath(points: number[], width: number, height: number, padding: number, minValue: number, maxValue: number) {
   if (points.length < 2 || maxValue === minValue) return "";
 
@@ -254,6 +264,8 @@ export default function ContentPage() {
   const [research, setResearch] = useState<ContentResearch[]>([]);
   const [replies, setReplies] = useState<ContentReply[]>([]);
   const [targetAccounts, setTargetAccounts] = useState<TargetAccount[]>([]);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [countdown, setCountdown] = useState(30);
 
   const cardStyle: React.CSSProperties = {
     background: "#0D0D0D",
@@ -320,6 +332,8 @@ export default function ContentPage() {
           .map((item, index) => normalizeTargetAccount(item, index))
           .filter((item): item is TargetAccount => item !== null)
       );
+      setLastRefresh(new Date());
+      setCountdown(30);
       setLoadError(null);
     } catch (error) {
       console.error("Failed to fetch content dashboard data:", error);
@@ -335,9 +349,16 @@ export default function ContentPage() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 45000);
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, [fetchData]);
+
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setCountdown((c) => (c > 0 ? c - 1 : 30));
+    }, 1000);
+    return () => clearInterval(tick);
+  }, []);
 
   const queueReply = async (item: ContentResearch) => {
     if (!item.post_url) return;
@@ -354,6 +375,21 @@ export default function ContentPage() {
 
     await getSupabaseClient().from("content_research").update({ status: "queued" }).eq("id", item.id);
     fetchData();
+  };
+
+  const postNow = async (postId: string) => {
+    try {
+      await getSupabaseClient()
+        .from("content_posts")
+        .update({
+          status: "scheduled",
+          scheduled_at: new Date().toISOString()
+        })
+        .eq("id", postId);
+      fetchData();
+    } catch (error) {
+      console.error("Failed to schedule post:", error);
+    }
   };
 
   const todayStart = startOfDay();
@@ -483,6 +519,15 @@ export default function ContentPage() {
     maxValue
   );
 
+  const publishedPosts = posts
+    .filter(post => post.status === "posted")
+    .sort((a, b) => {
+      const aTime = a.posted_at ? new Date(a.posted_at).getTime() : 0;
+      const bTime = b.posted_at ? new Date(b.posted_at).getTime() : 0;
+      return bTime - aTime; // Most recent first
+    })
+    .slice(0, 6); // Show last 6 published posts
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -493,7 +538,7 @@ export default function ContentPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      <Header activePage="content" />
+      <Header activePage="content" countdown={countdown} lastRefresh={lastRefresh} formatTime={formatTime} />
 
       <main style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1280px", margin: "0 auto" }}>
         <div
@@ -562,7 +607,7 @@ export default function ContentPage() {
                           <div key={post.id} style={{ background: "#111", border: "1px solid #1F1F1F", borderRadius: "8px", padding: "8px" }}>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
                               <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
-                                {formatTime(post.scheduled_at || post.posted_at)}
+                                {formatPostTime(post.scheduled_at || post.posted_at)}
                               </span>
                               <span
                                 style={{
@@ -585,10 +630,29 @@ export default function ContentPage() {
                                 lineHeight: 1.35,
                                 maxHeight: "50px",
                                 overflow: "hidden",
+                                marginBottom: post.status === "draft" ? "6px" : 0,
                               }}
                             >
                               {post.content}
                             </div>
+                            {post.status === "draft" && (
+                              <button
+                                onClick={() => postNow(post.id)}
+                                style={{
+                                  background: "rgba(134,239,172,0.15)",
+                                  color: "#86EFAC",
+                                  border: "1px solid rgba(134,239,172,0.3)",
+                                  borderRadius: "4px",
+                                  padding: "2px 6px",
+                                  fontSize: "10px",
+                                  cursor: "pointer",
+                                  fontFamily: "'Inter', sans-serif",
+                                  fontWeight: 500,
+                                }}
+                              >
+                                Post Now
+                              </button>
+                            )}
                           </div>
                         ))
                       )}
@@ -598,6 +662,77 @@ export default function ContentPage() {
               })}
             </div>
           </div>
+        </div>
+
+        {/* Published Posts Section */}
+        <div style={{ ...cardStyle, marginBottom: "24px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "14px", margin: 0 }}>
+              Published Posts
+            </h3>
+            <span style={{ fontSize: "11px", color: "#555", fontFamily: "'Inter', sans-serif" }}>
+              {publishedPosts.length} recent posts
+            </span>
+          </div>
+
+          {publishedPosts.length === 0 ? (
+            <div style={{ fontSize: "13px", color: "#555", fontFamily: "'Inter', sans-serif", textAlign: "center", padding: "20px" }}>
+              No published posts yet
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: "12px" }}>
+              {publishedPosts.map((post) => (
+                <div
+                  key={post.id}
+                  style={{
+                    background: "#111",
+                    border: "1px solid #1F1F1F",
+                    borderRadius: "10px",
+                    padding: "14px",
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "8px", flexWrap: "wrap" }}>
+                      <span style={{ fontSize: "12px", color: "#86EFAC", fontFamily: "'Inter', sans-serif", fontWeight: 500 }}>
+                        {post.account}
+                      </span>
+                      <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
+                        {post.posted_at ? timeAgo(post.posted_at) : "Unknown time"}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: "13px",
+                        color: "#D0D0D0",
+                        fontFamily: "'Inter', sans-serif",
+                        lineHeight: 1.4,
+                        marginBottom: "10px",
+                      }}
+                    >
+                      {post.content.length > 120 ? `${post.content.substring(0, 120)}...` : post.content}
+                    </div>
+
+                    <div style={{ display: "flex", gap: "16px", fontSize: "11px", fontFamily: "'Inter', sans-serif" }}>
+                      {post.engagement_metrics ? (
+                        <>
+                          <span style={{ color: "#F59E0B" }}>❤ {post.engagement_metrics.likes || 0}</span>
+                          <span style={{ color: "#60A5FA" }}>💬 {post.engagement_metrics.replies || 0}</span>
+                          <span style={{ color: "#86EFAC" }}>🔄 {post.engagement_metrics.reposts || 0}</span>
+                          <span style={{ color: "#A0A0A0" }}>👁 {formatCompact(post.engagement_metrics.impressions || 0)}</span>
+                        </>
+                      ) : (
+                        <span style={{ color: "#555" }}>Pending sync</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "24px", marginBottom: "24px" }}>
