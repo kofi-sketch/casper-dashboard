@@ -282,7 +282,26 @@ export default function HistoryPage() {
   const [entries, setEntries] = useState<PipelineHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
-  const [pipelineTypes, setPipelineTypes] = useState<string[]>([]);
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  const CATEGORIES: Record<string, { label: string; icon: string; ids: string[] }> = {
+    all: { label: "All", icon: "📋", ids: [] },
+    content: { label: "Content", icon: "✍️", ids: ["draft-posts", "first-posts", "voice-research", "content-ops-build"] },
+    research: { label: "Research", icon: "🔍", ids: ["ppir-vol2", "report-design"] },
+    email: { label: "Email", icon: "📧", ids: ["email-catchup", "email3-send", "email-nurture", "email-images", "gravatar-setup"] },
+    infrastructure: { label: "Infra", icon: "⚙️", ids: ["cron-setup", "dashboard-autoupdate", "dashboard-rebuild", "dashboard-global-header", "x-auth-setup", "x-reauth"] },
+    ads: { label: "Ads", icon: "📢", ids: ["ad-scripts"] },
+  };
+
+  const PRIMARY_FILTERS = ["all", "content", "research", "email"];
+  const MORE_FILTERS = ["infrastructure", "ads"];
+
+  const getCategoryForEntry = (pipelineId: string): string => {
+    for (const [cat, def] of Object.entries(CATEGORIES)) {
+      if (def.ids.includes(pipelineId)) return cat;
+    }
+    return "infrastructure";
+  };
 
   const fetchHistory = useCallback(async () => {
     try {
@@ -293,10 +312,6 @@ export default function HistoryPage() {
       if (error) throw error;
       const items = (data || []) as PipelineHistoryEntry[];
       setEntries(items);
-
-      // Build filter options from pipeline_ids
-      const types = Array.from(new Set(items.map((e) => e.pipeline_id)));
-      setPipelineTypes(types);
     } catch (e) {
       console.error("Failed to fetch history:", e);
     } finally {
@@ -310,7 +325,10 @@ export default function HistoryPage() {
     return () => clearInterval(interval);
   }, [fetchHistory]);
 
-  const filtered = filter === "all" ? entries : entries.filter((e) => e.pipeline_id === filter);
+  const filtered = filter === "all" ? entries : entries.filter((e) => {
+    const cat = CATEGORIES[filter];
+    return cat && cat.ids.includes(e.pipeline_id);
+  });
   const completeCount = entries.filter((e) => e.status === "complete").length;
   const failedCount = entries.filter((e) => e.status === "failed").length;
 
@@ -383,41 +401,97 @@ export default function HistoryPage() {
             alignItems: "center",
             gap: "8px",
             marginBottom: "16px",
-            flexWrap: "wrap",
+            position: "relative",
           }}
         >
-          <span
-            style={{
-              fontSize: "11px",
-              color: "#555",
-              fontFamily: "'Inter', sans-serif",
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              marginRight: "4px",
-            }}
-          >
-            Filter:
-          </span>
-          {["all", ...pipelineTypes].map((type) => (
+          {PRIMARY_FILTERS.map((key) => {
+            const cat = CATEGORIES[key];
+            return (
+              <button
+                key={key}
+                onClick={() => { setFilter(key); setShowMoreFilters(false); }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "9999px",
+                  fontSize: "13px",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  border: filter === key ? "1px solid rgba(134,239,172,0.5)" : "1px solid #1F1F1F",
+                  background: filter === key ? "rgba(134,239,172,0.1)" : "transparent",
+                  color: filter === key ? "#86EFAC" : "#A0A0A0",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                {cat.icon} {cat.label}
+              </button>
+            );
+          })}
+          
+          {/* More button */}
+          <div style={{ position: "relative" }}>
             <button
-              key={type}
-              onClick={() => setFilter(type)}
+              onClick={() => setShowMoreFilters(!showMoreFilters)}
               style={{
-                padding: "4px 12px",
+                padding: "6px 14px",
                 borderRadius: "9999px",
-                fontSize: "12px",
-                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                fontFamily: "'Space Grotesk', sans-serif",
                 fontWeight: 500,
                 cursor: "pointer",
-                border: filter === type ? "1px solid rgba(134,239,172,0.5)" : "1px solid #1F1F1F",
-                background: filter === type ? "rgba(134,239,172,0.1)" : "transparent",
-                color: filter === type ? "#86EFAC" : "#A0A0A0",
+                border: MORE_FILTERS.includes(filter) ? "1px solid rgba(134,239,172,0.5)" : "1px solid #1F1F1F",
+                background: MORE_FILTERS.includes(filter) ? "rgba(134,239,172,0.1)" : "transparent",
+                color: MORE_FILTERS.includes(filter) ? "#86EFAC" : "#A0A0A0",
                 transition: "all 0.15s ease",
               }}
             >
-              {type === "all" ? "All" : type.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+              ••• More
             </button>
-          ))}
+            
+            {showMoreFilters && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  left: 0,
+                  background: "#0D0D0D",
+                  border: "1px solid #1F1F1F",
+                  borderRadius: "12px",
+                  padding: "8px",
+                  zIndex: 50,
+                  minWidth: "160px",
+                  boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                }}
+              >
+                {MORE_FILTERS.map((key) => {
+                  const cat = CATEGORIES[key];
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => { setFilter(key); setShowMoreFilters(false); }}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        fontSize: "13px",
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontWeight: 500,
+                        cursor: "pointer",
+                        border: "none",
+                        background: filter === key ? "rgba(134,239,172,0.1)" : "transparent",
+                        color: filter === key ? "#86EFAC" : "#A0A0A0",
+                        textAlign: "left",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      {cat.icon} {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* History list */}
