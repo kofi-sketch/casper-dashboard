@@ -113,8 +113,8 @@ def get_email_template(stage, name):
     Yesterday we talked about the problem. Today — the solution.
   </p>
   
-  <div style="text-align: center; margin: 30px 0; background: #000; border-radius: 16px; padding: 20px;">
-    <img src="https://casperops.vercel.app/traqd-analytics.jpg" alt="Traqd Analytics Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
+  <div style="text-align: center; margin: 30px 0;">
+    <img src="https://casperops.vercel.app/traqd-analytics-sq.jpg" alt="Traqd Analytics Dashboard" style="max-width: 200px; width: 200px; border-radius: 12px;" />
   </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
