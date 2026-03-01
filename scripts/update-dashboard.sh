@@ -31,6 +31,14 @@ now = '''${NOW}'''
 
 est_done = '''${EST_DONE}'''
 
+from datetime import datetime, timedelta, timezone
+
+# Auto-expire tasks older than 30 min
+current['activeTasks'] = [
+    t for t in current.get('activeTasks', [])
+    if datetime.fromisoformat(t.get('startedAt','2000-01-01T00:00:00Z').replace('Z','+00:00')) > datetime.now(timezone.utc) - timedelta(minutes=30)
+]
+
 if status == 'start':
     current['activeTasks'] = [t for t in current.get('activeTasks', []) if t.get('taskDescription') != task]
     current['activeTasks'].append({
