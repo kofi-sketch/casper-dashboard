@@ -80,7 +80,7 @@ if [ "$STATUS" = "complete" ]; then
     -H "Authorization: Bearer ${ANON_KEY}" \
     -H "Content-Type: application/json" \
     -H "Prefer: return=minimal" \
-    -d "{\"pipeline_id\":\"task-${NOW}\",\"name\":\"${TASK}\",\"stages\":[\"Done\"],\"completed_stages\":[\"Done\"],\"started_at\":\"${NOW}\",\"completed_at\":\"${NOW}\",\"status\":\"complete\",\"duration\":\"-\"}" > /dev/null 2>&1
+    -d "{\"pipeline_id\":\"task-${NOW}\",\"name\":\"${TASK}\",\"stages\":[\"Done\"],\"completed_stages\":[\"Done\"],\"started_at\":\"${NOW}\",\"completed_at\":\"${NOW}\",\"status\":\"complete\",\"duration\":\"-\",\"tasks\":[{\"id\":\"t1\",\"description\":\"${TASK}\",\"agentName\":\"${AGENT}\",\"status\":\"complete\",\"duration\":\"-\"}]}" > /dev/null 2>&1
 fi
 
 echo "Dashboard updated: ${STATUS} — ${TASK}"
