@@ -101,13 +101,12 @@ const SYSTEM_ICONS: Record<string, string> = {
   supabase: "⚡",
   metaAds: "𝕄",
   email: "✉",
-  nanoBanana: "🍌",
+  nanoBanana: "🔬",
   imap: "📬",
 };
 
 const SYSTEM_LOGOS: Record<string, string> = {
   elevenLabs: "https://avatars.githubusercontent.com/u/101422956?s=40",
-  nanoBanana: "https://framerusercontent.com/images/HJJMInnqFWOBHHpWJw6kBqBaI.png",
 };
 
 const SYSTEM_LABELS: Record<string, string> = {
