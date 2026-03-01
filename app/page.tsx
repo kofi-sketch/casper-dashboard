@@ -96,21 +96,30 @@ const SEVERITY_ICONS: Record<string, string> = {
 const SYSTEM_ICONS: Record<string, string> = {
   xApi: "𝕏",
   braveSearch: "🦁",
-  elevenlabs: "🎙",
+  elevenLabs: "🎙",
   vercel: "▲",
   supabase: "⚡",
   metaAds: "𝕄",
   email: "✉",
+  nanoBanana: "🍌",
+  imap: "📬",
+};
+
+const SYSTEM_LOGOS: Record<string, string> = {
+  elevenLabs: "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/ElevenLabs_logo.svg/120px-ElevenLabs_logo.svg.png",
+  nanoBanana: "https://www.nanobanana.com/favicon.ico",
 };
 
 const SYSTEM_LABELS: Record<string, string> = {
   xApi: "X API",
   braveSearch: "Brave Search",
-  elevenlabs: "ElevenLabs",
+  elevenLabs: "ElevenLabs",
   vercel: "Vercel",
   supabase: "Supabase",
   metaAds: "Meta Ads",
   email: "Email",
+  nanoBanana: "nanoBanana",
+  imap: "IMAP",
 };
 
 const PIPELINE_STATUS_COLORS: Record<string, string> = {
@@ -1148,7 +1157,11 @@ export default function Dashboard() {
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontSize: "18px" }}>{SYSTEM_ICONS[key]}</span>
+                {SYSTEM_LOGOS[key] ? (
+                  <img src={SYSTEM_LOGOS[key]} alt={SYSTEM_LABELS[key] || key} style={{ width: "22px", height: "22px", objectFit: "contain", borderRadius: "4px" }} />
+                ) : (
+                  <span style={{ fontSize: "18px" }}>{SYSTEM_ICONS[key] || "⚙"}</span>
+                )}
                 <span
                   style={{
                     fontFamily: "'Inter', sans-serif",
