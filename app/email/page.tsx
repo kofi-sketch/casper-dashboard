@@ -95,6 +95,14 @@ export default function EmailPage() {
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [sentId, setSentId] = useState<string | null>(null);
   const [previewStage, setPreviewStage] = useState<number | null>(null);
+  const [emailTemplates, setEmailTemplates] = useState<Record<string, { subject: string; html: string }>>({});
+
+  useEffect(() => {
+    fetch("/email-templates.json")
+      .then((r) => r.json())
+      .then((d) => setEmailTemplates(d))
+      .catch(() => {});
+  }, []);
 
   const fetchData = useCallback(async () => {
     const [subRes, sendRes] = await Promise.all([
@@ -214,32 +222,57 @@ export default function EmailPage() {
           </div>
         </div>
 
-        {/* Email Preview Modal */}
+        {/* Email Preview Modal — Full Render */}
         {previewStage !== null && (
-          <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }} onClick={() => setPreviewStage(null)}>
-            <div style={{ background: "#0D0D0D", border: "1px solid #1F1F1F", borderRadius: "16px", padding: "32px", maxWidth: "480px", width: "100%" }} onClick={(e) => e.stopPropagation()}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "11px", color: "#86EFAC", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  Email {previewStage + 1} of 8 · {STAGE_LABELS[previewStage]}
+          <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }} onClick={() => setPreviewStage(null)}>
+            <div style={{ background: "#0D0D0D", border: "1px solid #1F1F1F", borderRadius: "16px", maxWidth: "700px", width: "100%", maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
+              {/* Header bar */}
+              <div style={{ padding: "16px 24px", borderBottom: "1px solid #1F1F1F", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "11px", color: "#86EFAC", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                    Email {previewStage + 1} of 8 · {STAGE_LABELS[previewStage]}
+                  </span>
+                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "16px", color: "#fff" }}>
+                    {emailTemplates[String(previewStage + 1)]?.subject || STAGE_DETAILS[previewStage].subject}
+                  </span>
+                  <div style={{ display: "flex", gap: "16px", fontSize: "11px", fontFamily: "'Inter', sans-serif", color: "#555", marginTop: "2px" }}>
+                    <span>From: <span style={{ color: "#A0A0A0" }}>Casper @ Traqd &lt;casperowens@traqd.io&gt;</span></span>
+                    <span>To: <span style={{ color: "#A0A0A0" }}>subscriber@email.com</span></span>
+                  </div>
+                </div>
+                <button onClick={() => setPreviewStage(null)} style={{ background: "none", border: "none", color: "#555", fontSize: "20px", cursor: "pointer", padding: "4px 8px" }}>✕</button>
+              </div>
+
+              {/* Email body iframe */}
+              <div style={{ flex: 1, overflow: "auto", background: "#fff" }}>
+                {emailTemplates[String(previewStage + 1)] ? (
+                  <iframe
+                    srcDoc={emailTemplates[String(previewStage + 1)].html.replace(/\{\{name\}\}/g, "Sarah")}
+                    style={{ width: "100%", height: "100%", minHeight: "500px", border: "none" }}
+                    sandbox="allow-same-origin"
+                    title={`Email ${previewStage + 1} Preview`}
+                  />
+                ) : (
+                  <div style={{ padding: "40px", textAlign: "center", color: "#666" }}>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px" }}>{STAGE_DETAILS[previewStage].description}</p>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#999" }}>Full template preview not available</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer nav */}
+              <div style={{ padding: "12px 24px", borderTop: "1px solid #1F1F1F", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {previewStage > 0 && (
+                    <button onClick={() => setPreviewStage(previewStage - 1)} style={{ background: "#1F1F1F", border: "none", borderRadius: "8px", padding: "8px 16px", color: "#A0A0A0", fontSize: "12px", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}>← Previous</button>
+                  )}
+                  {previewStage < 7 && (
+                    <button onClick={() => setPreviewStage(previewStage + 1)} style={{ background: "rgba(134,239,172,0.1)", border: "1px solid rgba(134,239,172,0.3)", borderRadius: "8px", padding: "8px 16px", color: "#86EFAC", fontSize: "12px", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}>Next →</button>
+                  )}
+                </div>
+                <span style={{ fontSize: "11px", color: "#555", fontFamily: "'Inter', sans-serif" }}>
+                  {subscribers.filter(s => s.current_stage === previewStage + 1 && s.status === "active").length} subscribers at this stage
                 </span>
-                <button onClick={() => setPreviewStage(null)} style={{ background: "none", border: "none", color: "#555", fontSize: "18px", cursor: "pointer" }}>✕</button>
-              </div>
-              <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "20px", color: "#fff", margin: "0 0 12px 0" }}>
-                {STAGE_DETAILS[previewStage].subject}
-              </h3>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", color: "#A0A0A0", lineHeight: 1.6, margin: 0 }}>
-                {STAGE_DETAILS[previewStage].description}
-              </p>
-              <div style={{ marginTop: "20px", display: "flex", gap: "8px" }}>
-                {previewStage > 0 && (
-                  <button onClick={() => setPreviewStage(previewStage - 1)} style={{ background: "#1F1F1F", border: "none", borderRadius: "8px", padding: "8px 16px", color: "#A0A0A0", fontSize: "12px", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}>← Previous</button>
-                )}
-                {previewStage < 7 && (
-                  <button onClick={() => setPreviewStage(previewStage + 1)} style={{ background: "rgba(134,239,172,0.1)", border: "1px solid rgba(134,239,172,0.3)", borderRadius: "8px", padding: "8px 16px", color: "#86EFAC", fontSize: "12px", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}>Next →</button>
-                )}
-              </div>
-              <div style={{ marginTop: "16px", fontSize: "11px", color: "#333", fontFamily: "'Inter', sans-serif" }}>
-                {subscribers.filter(s => s.current_stage === previewStage + 1 && s.status === "active").length} subscribers at this stage
               </div>
             </div>
           </div>
