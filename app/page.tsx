@@ -106,8 +106,8 @@ const SYSTEM_ICONS: Record<string, string> = {
 };
 
 const SYSTEM_LOGOS: Record<string, string> = {
-  elevenLabs: "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/ElevenLabs_logo.svg/120px-ElevenLabs_logo.svg.png",
-  nanoBanana: "https://www.nanobanana.com/favicon.ico",
+  elevenLabs: "https://avatars.githubusercontent.com/u/101422956?s=40",
+  nanoBanana: "https://framerusercontent.com/images/HJJMInnqFWOBHHpWJw6kBqBaI.png",
 };
 
 const SYSTEM_LABELS: Record<string, string> = {
