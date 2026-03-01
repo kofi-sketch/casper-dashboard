@@ -35,7 +35,7 @@ def get_email_template(stage, name):
   </p>
   
   <div style="text-align: center; margin: 30px 0; background: #000; border-radius: 16px; padding: 20px;">
-    <img src="https://casper-dashboard-snowy.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
+    <img src="https://casperops.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
   </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;"><strong>Here's what happens next:</strong></p>
@@ -110,7 +110,7 @@ def get_email_template(stage, name):
   </p>
   
   <div style="text-align: center; margin: 30px 0; background: #000; border-radius: 16px; padding: 20px;">
-    <img src="https://casper-dashboard-snowy.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
+    <img src="https://casperops.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
   </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
@@ -185,7 +185,7 @@ def get_email_template(stage, name):
   <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 16px; color: #000;">{name}, imagine asking your money a question.</h1>
   
   <div style="text-align: center; margin: 30px 0; background: #000; border-radius: 16px; padding: 20px;">
-    <img src="https://casper-dashboard-snowy.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
+    <img src="https://casperops.vercel.app/traqd-hero-phone.jpg" alt="Traqd Dashboard" style="max-width: 300px; width: 100%; height: auto;" />
   </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
