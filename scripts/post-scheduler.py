@@ -49,7 +49,7 @@ def post_tweet(content, account):
         return None
 
 if __name__ == "__main__":
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     print(f"📤 Post Scheduler — {now}")
     
     # Find scheduled posts that are due

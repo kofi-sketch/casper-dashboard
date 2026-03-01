@@ -306,6 +306,8 @@ export default function HistoryPage() {
 
   useEffect(() => {
     fetchHistory();
+    const interval = setInterval(fetchHistory, 30000);
+    return () => clearInterval(interval);
   }, [fetchHistory]);
 
   const filtered = filter === "all" ? entries : entries.filter((e) => e.pipeline_id === filter);

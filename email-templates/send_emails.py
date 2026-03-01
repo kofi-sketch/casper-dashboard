@@ -114,7 +114,7 @@ def get_email_template(stage, name):
   </p>
   
   <div style="text-align: center; margin: 30px 0;">
-    <img src="https://casperops.vercel.app/traqd-analytics-sq.jpg" alt="Traqd Analytics Dashboard" style="max-width: 200px; width: 200px; border-radius: 12px;" />
+    <img src="https://casperops.vercel.app/traqd-analytics-sq.jpg" alt="Traqd Analytics Dashboard" style="max-width: 280px; width: 280px; border-radius: 12px;" />
   </div>
   
   <p style="font-size: 16px; line-height: 1.6; color: #333;">
