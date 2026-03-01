@@ -1,6 +1,7 @@
 #!/bin/bash
-# Usage: ./update-dashboard.sh "task description" "status" "agent"
+# Usage: ./update-dashboard.sh "task description" "status" "agent" "est_minutes"
 # status: start | complete | fail
+# est_minutes: estimated minutes to completion (for start only, default 15)
 # This is called by ALL scripts and cron jobs automatically
 
 SUPABASE_URL="https://stboueshyjvooiftfuxm.supabase.co"
@@ -9,7 +10,9 @@ ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6I
 TASK="$1"
 STATUS="$2"
 AGENT="${3:-CMO (Casper)}"
+EST_MINS="${4:-15}"
 NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+EST_DONE=$(date -u -v+${EST_MINS}M +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -d "+${EST_MINS} minutes" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "$NOW")
 
 # Get current state
 CURRENT=$(curl -s "${SUPABASE_URL}/rest/v1/dashboard_state?id=eq.1&select=state" \
@@ -26,6 +29,8 @@ status = '''${STATUS}'''
 agent = '''${AGENT}'''
 now = '''${NOW}'''
 
+est_done = '''${EST_DONE}'''
+
 if status == 'start':
     current['activeTasks'] = [t for t in current.get('activeTasks', []) if t.get('taskDescription') != task]
     current['activeTasks'].append({
@@ -33,6 +38,7 @@ if status == 'start':
         'priority': 'high',
         'agentName': agent,
         'startedAt': now,
+        'estCompletion': est_done,
         'taskDescription': task
     })
 elif status == 'complete':
