@@ -266,6 +266,7 @@ export default function ContentPage() {
   const [targetAccounts, setTargetAccounts] = useState<TargetAccount[]>([]);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [countdown, setCountdown] = useState(30);
+  const [selectedDay, setSelectedDay] = useState<Date>(new Date());
 
   const cardStyle: React.CSSProperties = {
     background: "#0D0D0D",
@@ -576,91 +577,160 @@ export default function ContentPage() {
           ))}
         </div>
 
+        {/* Daily Selector and Content Calendar */}
         <div style={{ ...cardStyle, marginBottom: "24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", gap: "8px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", gap: "8px", flexWrap: "wrap" }}>
             <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: "14px", margin: 0 }}>Content Calendar</h3>
             <span style={{ fontSize: "11px", color: "#555", fontFamily: "'Inter', sans-serif", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              Weekly view · {weekDays[0].toLocaleDateString("en-US", { month: "short", day: "numeric" })} - {weekDays[6].toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              {selectedDay.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
             </span>
           </div>
 
-          <div style={{ overflowX: "auto" }}>
-            <div style={{ minWidth: "760px", display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "8px" }}>
-              {weekDays.map((day) => {
-                const dayPosts = postsByDay.get(day.toDateString()) || [];
-                return (
-                  <div key={day.toISOString()} style={{ border: "1px solid #1F1F1F", borderRadius: "10px", minHeight: "180px", background: "#090909" }}>
-                    <div style={{ padding: "10px", borderBottom: "1px solid #1A1A1A" }}>
-                      <div style={{ fontSize: "12px", color: "#fff", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600 }}>
-                        {day.toLocaleDateString("en-US", { weekday: "short" })}
-                      </div>
-                      <div style={{ fontSize: "11px", color: "#555", fontFamily: "'Inter', sans-serif" }}>
-                        {day.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </div>
+          {/* Daily Selector */}
+          <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
+            {weekDays.map((day) => {
+              const isSelected = day.toDateString() === selectedDay.toDateString();
+              const dayPosts = postsByDay.get(day.toDateString()) || [];
+              return (
+                <button
+                  key={day.toISOString()}
+                  onClick={() => setSelectedDay(day)}
+                  style={{
+                    background: isSelected ? "#86EFAC" : "#111",
+                    color: isSelected ? "#000" : "#fff",
+                    border: `1px solid ${isSelected ? "#86EFAC" : "#1F1F1F"}`,
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    fontSize: "12px",
+                    fontFamily: "'Inter', sans-serif",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    minWidth: "80px",
+                    textAlign: "center",
+                  }}
+                >
+                  <div style={{ fontSize: "11px", fontWeight: 600 }}>
+                    {day.toLocaleDateString("en-US", { weekday: "short" })}
+                  </div>
+                  <div style={{ fontSize: "10px", opacity: 0.8 }}>
+                    {day.toLocaleDateString("en-US", { day: "numeric" })}
+                  </div>
+                  {dayPosts.length > 0 && (
+                    <div style={{ fontSize: "9px", marginTop: "2px", opacity: 0.7 }}>
+                      {dayPosts.length} post{dayPosts.length !== 1 ? 's' : ''}
                     </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-                    <div style={{ padding: "8px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {dayPosts.length === 0 ? (
-                        <div style={{ fontSize: "11px", color: "#444", fontFamily: "'Inter', sans-serif" }}>No scheduled posts</div>
-                      ) : (
-                        dayPosts.map((post) => (
-                          <div key={post.id} style={{ background: "#111", border: "1px solid #1F1F1F", borderRadius: "8px", padding: "8px" }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", marginBottom: "4px" }}>
-                              <span style={{ fontSize: "11px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
-                                {formatPostTime(post.scheduled_at || post.posted_at)}
-                              </span>
-                              <span
-                                style={{
-                                  fontSize: "10px",
-                                  textTransform: "uppercase",
-                                  letterSpacing: "0.07em",
-                                  color: post.status === "posted" ? "#86EFAC" : post.status === "scheduled" ? "#F59E0B" : "#A0A0A0",
-                                  fontFamily: "'Inter', sans-serif",
-                                }}
-                              >
-                                {post.status}
-                              </span>
-                            </div>
-                            <div style={{ fontSize: "11px", color: "#86EFAC", fontFamily: "'Inter', sans-serif", marginBottom: "4px" }}>{post.account}</div>
-                            <div
-                              style={{
-                                fontSize: "12px",
-                                color: "#D0D0D0",
-                                fontFamily: "'Inter', sans-serif",
-                                lineHeight: 1.35,
-                                maxHeight: "50px",
-                                overflow: "hidden",
-                                marginBottom: post.status === "draft" ? "6px" : 0,
-                              }}
-                            >
-                              {post.content}
-                            </div>
-                            {post.status === "draft" && (
-                              <button
-                                onClick={() => postNow(post.id)}
-                                style={{
-                                  background: "rgba(134,239,172,0.15)",
-                                  color: "#86EFAC",
-                                  border: "1px solid rgba(134,239,172,0.3)",
-                                  borderRadius: "4px",
-                                  padding: "2px 6px",
-                                  fontSize: "10px",
-                                  cursor: "pointer",
-                                  fontFamily: "'Inter', sans-serif",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                Post Now
-                              </button>
-                            )}
-                          </div>
-                        ))
-                      )}
+          {/* Selected Day Posts */}
+          <div>
+            {(() => {
+              const dayPosts = postsByDay.get(selectedDay.toDateString()) || [];
+              if (dayPosts.length === 0) {
+                return (
+                  <div style={{
+                    background: "#111",
+                    border: "1px solid #1F1F1F",
+                    borderRadius: "10px",
+                    padding: "24px",
+                    textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: "14px", color: "#555", fontFamily: "'Inter', sans-serif", marginBottom: "8px" }}>
+                      No posts scheduled for this day
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#777", fontFamily: "'Inter', sans-serif" }}>
+                      {selectedDay.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              }
+
+              return (
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {dayPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      style={{
+                        background: "#111",
+                        border: "1px solid #1F1F1F",
+                        borderRadius: "12px",
+                        padding: "18px",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginBottom: "12px", flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "14px", color: "#86EFAC", fontFamily: "'Inter', sans-serif", fontWeight: 600 }}>
+                            {post.account}
+                          </span>
+                          <span style={{ fontSize: "13px", color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>
+                            {formatPostTime(post.scheduled_at || post.posted_at)}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.07em",
+                              color: post.status === "posted" ? "#86EFAC" : post.status === "scheduled" ? "#F59E0B" : "#A0A0A0",
+                              fontFamily: "'Inter', sans-serif",
+                              background: post.status === "posted" ? "rgba(134,239,172,0.1)" : post.status === "scheduled" ? "rgba(245,158,11,0.1)" : "rgba(160,160,160,0.1)",
+                              padding: "4px 8px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            {post.status}
+                          </span>
+                          {post.status === "draft" && (
+                            <button
+                              onClick={() => postNow(post.id)}
+                              style={{
+                                background: "rgba(134,239,172,0.15)",
+                                color: "#86EFAC",
+                                border: "1px solid rgba(134,239,172,0.3)",
+                                borderRadius: "6px",
+                                padding: "6px 12px",
+                                fontSize: "11px",
+                                cursor: "pointer",
+                                fontFamily: "'Inter', sans-serif",
+                                fontWeight: 500,
+                              }}
+                            >
+                              Post Now
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: "14px",
+                          color: "#E5E5E5",
+                          fontFamily: "'Inter', sans-serif",
+                          lineHeight: 1.5,
+                          marginBottom: post.engagement_metrics ? "12px" : 0,
+                          whiteSpace: "pre-wrap",
+                        }}
+                      >
+                        {post.content}
+                      </div>
+
+                      {post.engagement_metrics && (
+                        <div style={{ display: "flex", gap: "16px", fontSize: "12px", fontFamily: "'Inter', sans-serif", borderTop: "1px solid #1A1A1A", paddingTop: "12px" }}>
+                          <span style={{ color: "#F59E0B" }}>❤ {post.engagement_metrics.likes || 0}</span>
+                          <span style={{ color: "#60A5FA" }}>💬 {post.engagement_metrics.replies || 0}</span>
+                          <span style={{ color: "#86EFAC" }}>🔄 {post.engagement_metrics.reposts || 0}</span>
+                          <span style={{ color: "#A0A0A0" }}>👁 {formatCompact(post.engagement_metrics.impressions || 0)}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

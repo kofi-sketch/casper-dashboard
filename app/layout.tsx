@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthGate from "./components/AuthGate";
 
 export const metadata: Metadata = {
   title: "Casper Operations Dashboard",
@@ -22,7 +23,7 @@ export default function RootLayout({
         />
       </head>
       <body style={{ fontFamily: "'Inter', sans-serif", backgroundColor: "#000000" }}>
-        {children}
+        <AuthGate>{children}</AuthGate>
       </body>
     </html>
   );
