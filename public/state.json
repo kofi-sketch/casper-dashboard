@@ -1,18 +1,18 @@
 {
-  "lastUpdated": "2026-03-02T11:38:00Z",
+  "lastUpdated": "2026-03-02T12:43:00Z",
   "kpis": {
     "activeAgents": 0,
-    "tasksCompletedToday": 0,
-    "errorsToday": 4
+    "tasksCompletedToday": 5,
+    "errorsToday": 3
   },
   "pipelines": [],
   "activeTasks": [],
   "cronJobs": [
     { "name": "dashboard-sync", "schedule": "every 5m", "status": "running" },
-    { "name": "post-scheduler", "schedule": "every 15m", "status": "ok" },
-    { "name": "social-media-manager", "schedule": "every 4h", "status": "idle" },
-    { "name": "scout-intel", "schedule": "every 2h", "status": "ok" },
     { "name": "follower-sync", "schedule": "every 1h", "status": "ok" },
+    { "name": "post-scheduler", "schedule": "every 15m", "status": "ok" },
+    { "name": "scout-intel", "schedule": "every 2h", "status": "ok" },
+    { "name": "social-media-manager", "schedule": "every 4h", "status": "idle" },
     { "name": "pain-point-scraping", "schedule": "daily 23:00", "status": "error" },
     { "name": "research-cycle", "schedule": "daily 23:30", "status": "ok" },
     { "name": "content-drafting", "schedule": "daily 00:30", "status": "ok" },
@@ -57,25 +57,19 @@
       "agent": "Cron: pain-point-scraping",
       "severity": "medium",
       "message": "pain-point-scraping failed — path issue writing output file",
-      "timestamp": "2026-03-02T02:00:00Z"
+      "timestamp": "2026-03-02T03:00:00Z"
     },
     {
       "agent": "Cron: morning-briefing",
       "severity": "medium",
-      "message": "morning-briefing cron failed",
-      "timestamp": "2026-03-02T06:45:00Z"
+      "message": "morning-briefing cron failed on run at 06:45",
+      "timestamp": "2026-03-02T10:45:00Z"
     },
     {
       "agent": "Cron: ppir-weekly",
       "severity": "medium",
-      "message": "PPIR weekly cron failed",
-      "timestamp": "2026-03-02T05:00:00Z"
-    },
-    {
-      "agent": "ACP Runtime",
-      "severity": "high",
-      "message": "ACP spawns fail with ACP_TURN_FAILED — using PTY fallback. Needs debugging.",
-      "timestamp": "2026-03-02T05:00:00Z"
+      "message": "PPIR weekly cron failed on Monday 05:00 run",
+      "timestamp": "2026-03-02T09:00:00Z"
     }
   ],
   "systemStatus": {
