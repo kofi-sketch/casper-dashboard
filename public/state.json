@@ -1,95 +1,97 @@
 {
-    "lastUpdated": "2026-03-01T04:35:00Z",
-    "kpis": {
-        "activeAgents": 1,
-        "tasksCompletedToday": 32,
-        "errorsToday": 16
+  "lastUpdated": "2026-03-02T12:12:00Z",
+  "kpis": {
+    "activeAgents": 0,
+    "tasksCompletedToday": 0,
+    "errorsToday": 4
+  },
+  "pipelines": [],
+  "activeTasks": [],
+  "cronJobs": [
+    { "name": "dashboard-sync", "schedule": "every 5m", "status": "running" },
+    { "name": "post-scheduler", "schedule": "every 15m", "status": "ok" },
+    { "name": "social-media-manager", "schedule": "every 4h", "status": "ok" },
+    { "name": "scout-intel", "schedule": "every 2h", "status": "error" },
+    { "name": "follower-sync", "schedule": "every 1h", "status": "ok" },
+    { "name": "pain-point-scraping", "schedule": "daily 23:00", "status": "error" },
+    { "name": "research-cycle", "schedule": "daily 23:30", "status": "ok" },
+    { "name": "content-drafting", "schedule": "daily 00:30", "status": "ok" },
+    { "name": "qa-review", "schedule": "daily 04:00", "status": "ok" },
+    { "name": "morning-briefing", "schedule": "daily 06:45", "status": "error" },
+    { "name": "ppir-weekly", "schedule": "weekly Mon 05:00", "status": "error" }
+  ],
+  "recentCompletions": [
+    {
+      "agent": "CMO (Casper)",
+      "task": "20s UK TOFU Ad V3 delivered (Michael C. Vincent VO, £9,999→£0 counter)",
+      "completedAt": "2026-03-02T06:00:00Z",
+      "duration": "multi-session"
     },
-    "pipelines": [
-        {
-            "id": "content-ops-setup",
-            "name": "X Content Operations Setup",
-            "stages": ["Brand Voices", "Dashboard /content", "Target Accounts", "First Week Content", "Agent Deployment"],
-            "currentStage": "Target Accounts",
-            "completedStages": ["Brand Voices", "Dashboard /content"],
-            "startedAt": "2026-03-01T04:25:00Z",
-            "status": "running"
-        }
-    ],
-    "activeTasks": [
-        {
-            "id": "target-accounts",
-            "agent": "CMO (Casper)",
-            "task": "Researching 100 target accounts for reply strategy",
-            "startedAt": "2026-03-01T04:35:00Z",
-            "priority": "high"
-        }
-    ],
-    "recentCompletions": [
-        {
-            "agent": "CMO (Casper)",
-            "task": "Email catch-up: 15 real emails sent to all subscribers",
-            "completedAt": "2026-03-01T02:04:00Z",
-            "duration": "8m"
-        },
-        {
-            "agent": "CMO (Casper)",
-            "task": "X auth: @gettraqd + @igobykofi both connected",
-            "completedAt": "2026-03-01T03:07:00Z",
-            "duration": "45m"
-        },
-        {
-            "agent": "CMO (Casper)",
-            "task": "Brand voice profiles documented (both accounts)",
-            "completedAt": "2026-03-01T04:26:00Z",
-            "duration": "5m"
-        },
-        {
-            "agent": "Builder Agent",
-            "task": "Built /content dashboard page + Supabase tables",
-            "completedAt": "2026-03-01T04:31:00Z",
-            "duration": "3m"
-        },
-        {
-            "agent": "CMO (Casper)",
-            "task": "Hero phone image background removal + email template updates",
-            "completedAt": "2026-03-01T01:15:00Z",
-            "duration": "20m"
-        },
-        {
-            "agent": "Builder Agent",
-            "task": "Signup sync script for hourly admin scraping",
-            "completedAt": "2026-02-28T17:13:00Z",
-            "duration": "5m"
-        }
-    ],
-    "errors": [
-        {
-            "agent": "CMO (Casper)",
-            "severity": "medium",
-            "message": "Gemini free tier quota exceeded — need paid API key for image generation",
-            "timestamp": "2026-03-01T04:33:00Z"
-        },
-        {
-            "agent": "CMO (Casper)",
-            "severity": "high",
-            "message": "QA completed but summarized instead of sending PDF",
-            "timestamp": "2026-02-28T16:08:00Z"
-        },
-        {
-            "agent": "CMO (Casper)",
-            "severity": "high",
-            "message": "Broke pipeline chain again",
-            "timestamp": "2026-02-28T15:57:00Z"
-        }
-    ],
-    "systemStatus": {
-        "xApi": "connected",
-        "email": "connected",
-        "vercel": "connected",
-        "metaAds": "connected",
-        "supabase": "connected",
-        "elevenlabs": "connected",
-        "braveSearch": "connected"
+    {
+      "agent": "CMO (Casper)",
+      "task": "Freelancer Tax Pain 57s ad V5 delivered",
+      "completedAt": "2026-03-02T04:00:00Z",
+      "duration": "multi-session"
+    },
+    {
+      "agent": "CMO (Casper)",
+      "task": "ACP agent teams architecture configured (PTY fallback active)",
+      "completedAt": "2026-03-02T05:00:00Z",
+      "duration": "2h"
+    },
+    {
+      "agent": "Social Media Manager",
+      "task": "Posted 4 tweets (2x @gettraqd, 2x @igobykofi) with account separation fix",
+      "completedAt": "2026-03-02T04:00:00Z",
+      "duration": "auto"
+    },
+    {
+      "agent": "Research Cycle",
+      "task": "IRS audit angle, creator middle class gap, fintech whitespace research",
+      "completedAt": "2026-03-02T03:30:00Z",
+      "duration": "auto"
     }
+  ],
+  "errors": [
+    {
+      "agent": "Cron: scout-intel",
+      "severity": "medium",
+      "message": "scout-intel cron in error state",
+      "timestamp": "2026-03-02T06:00:00Z"
+    },
+    {
+      "agent": "Cron: pain-point-scraping",
+      "severity": "medium",
+      "message": "pain-point-scraping failed — path issue writing output file",
+      "timestamp": "2026-03-02T02:00:00Z"
+    },
+    {
+      "agent": "Cron: morning-briefing",
+      "severity": "medium",
+      "message": "morning-briefing cron failed",
+      "timestamp": "2026-03-02T06:45:00Z"
+    },
+    {
+      "agent": "Cron: ppir-weekly",
+      "severity": "medium",
+      "message": "PPIR weekly cron failed",
+      "timestamp": "2026-03-02T05:00:00Z"
+    },
+    {
+      "agent": "ACP Runtime",
+      "severity": "high",
+      "message": "ACP spawns fail with ACP_TURN_FAILED — using PTY fallback. Needs debugging.",
+      "timestamp": "2026-03-02T05:00:00Z"
+    }
+  ],
+  "systemStatus": {
+    "xApi": "connected",
+    "email": "connected",
+    "vercel": "connected",
+    "metaAds": "connected",
+    "supabase": "connected",
+    "elevenlabs": "connected",
+    "braveSearch": "connected",
+    "acpRuntime": "broken — PTY fallback active"
+  }
 }
