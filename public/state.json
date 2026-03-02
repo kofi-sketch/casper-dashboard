@@ -1,11 +1,30 @@
 {
-  "lastUpdated": "2026-03-02T11:50:45.715402+00:00",
+  "lastUpdated": "2026-03-02T11:55:59.615227+00:00",
   "kpis": {
-    "activeAgents": 0,
+    "activeAgents": 1,
     "tasksCompletedToday": 9,
-    "errorsToday": 3
+    "errorsToday": 5
   },
-  "pipelines": [],
+  "pipelines": [
+    {
+      "id": "substack-setup",
+      "name": "Substack Content Pipeline",
+      "status": "building",
+      "stages": [
+        "Research",
+        "Strategy",
+        "Writing",
+        "QA",
+        "Publish"
+      ],
+      "completed_stages": [
+        "Research"
+      ],
+      "current_stage": "Strategy",
+      "started_at": "2026-03-02T11:30:00Z",
+      "est_completion": "2026-03-02T13:00:00Z"
+    }
+  ],
   "activeTasks": [],
   "cronJobs": [
     {
