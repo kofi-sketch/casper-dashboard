@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2026-03-02T10:22:20-03:00",
+  "lastUpdated": "2026-03-02T13:24:34.283475+00:00",
   "kpis": {
-    "activeAgents": 0,
+    "activeAgents": 1,
     "tasksCompletedToday": 10,
     "errorsToday": 3
   },
@@ -23,6 +23,24 @@
       "current_stage": "Strategy",
       "started_at": "2026-03-02T11:30:00Z",
       "est_completion": "2026-03-02T13:00:00Z"
+    },
+    {
+      "id": "uk-tofu-v6",
+      "name": "Traqd UK 20s Ad: V6 Build",
+      "status": "building",
+      "stages": [
+        "VO Re-record",
+        "ffmpeg Scale",
+        "Build",
+        "Render"
+      ],
+      "completed_stages": [
+        "VO Re-record",
+        "ffmpeg Scale"
+      ],
+      "current_stage": "Build",
+      "started_at": "2026-03-02T13:20:00Z",
+      "est_completion": "2026-03-02T13:35:00Z"
     }
   ],
   "activeTasks": [],
