@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-02T13:00:04.936721+00:00",
+  "lastUpdated": "2026-03-02T14:01:00+00:00",
   "kpis": {
     "activeAgents": 0,
     "tasksCompletedToday": 10,
@@ -33,11 +33,6 @@
       "status": "running"
     },
     {
-      "name": "follower-sync",
-      "schedule": "every 1h",
-      "status": "ok"
-    },
-    {
       "name": "post-scheduler",
       "schedule": "every 15m",
       "status": "ok"
@@ -45,6 +40,11 @@
     {
       "name": "scout-intel",
       "schedule": "every 2h",
+      "status": "ok"
+    },
+    {
+      "name": "follower-sync",
+      "schedule": "every 1h",
       "status": "ok"
     },
     {
