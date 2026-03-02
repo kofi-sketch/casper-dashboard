@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2026-03-02T12:46:00.000000+00:00",
+  "lastUpdated": "2026-03-02T12:51:00.000000+00:00",
   "kpis": {
-    "activeAgents": 7,
+    "activeAgents": 8,
     "tasksCompletedToday": 9,
     "errorsToday": 3
   },
