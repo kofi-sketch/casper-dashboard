@@ -146,6 +146,7 @@ function toDateOrNull(iso: string) {
 }
 
 function normalizePipelineStatus(value: unknown): Pipeline["status"] {
+  if (value === "in_progress") return "running";
   return value === "running" || value === "complete" || value === "failed" ? value : "running";
 }
 
@@ -198,9 +199,9 @@ function parseDashboardState(rawState: unknown): DashboardState {
           id: asString(item.id, `pipeline-${index}`),
           name: asString(item.name, "Untitled Pipeline"),
           stages,
-          currentStage: asString(item.currentStage, stages[0] || ""),
-          completedStages: asStringArray(item.completedStages),
-          startedAt: asString(item.startedAt, new Date().toISOString()),
+          currentStage: asString(item.currentStage ?? item.current_stage, stages[0] || ""),
+          completedStages: asStringArray(item.completedStages ?? item.completed_stages),
+          startedAt: asString(item.startedAt ?? item.started_at, new Date().toISOString()),
           status: normalizePipelineStatus(item.status),
         };
       })
