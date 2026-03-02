@@ -1,8 +1,8 @@
 {
-  "lastUpdated": "2026-03-02T12:51:00.000000+00:00",
+  "lastUpdated": "2026-03-02T13:00:04.936721+00:00",
   "kpis": {
-    "activeAgents": 8,
-    "tasksCompletedToday": 9,
+    "activeAgents": 0,
+    "tasksCompletedToday": 10,
     "errorsToday": 3
   },
   "pipelines": [
@@ -632,6 +632,56 @@
         {
           "id": "t6",
           "description": "Rendered 758 frames \u2192 10.6MB MP4",
+          "agentName": "Remotion",
+          "status": "completed",
+          "duration": "2m"
+        }
+      ]
+    },
+    {
+      "id": "tofu-v5",
+      "name": "Traqd 20s TOFU Ad: V5 (Full Rebuild)",
+      "status": "completed",
+      "stages": [
+        "Spec",
+        "ffmpeg Scale",
+        "Build",
+        "Render"
+      ],
+      "completed_stages": [
+        "Spec",
+        "ffmpeg Scale",
+        "Build",
+        "Render"
+      ],
+      "started_at": "2026-03-02T12:41:00Z",
+      "completed_at": "2026-03-02T12:53:00Z",
+      "duration": "12m",
+      "tasks": [
+        {
+          "id": "t1",
+          "description": "Complete V5 spec (93 lines) \u2014 all feedback consolidated",
+          "agentName": "CMO (Casper)",
+          "status": "completed",
+          "duration": "3m"
+        },
+        {
+          "id": "t2",
+          "description": "ffmpeg pre-scale empty-wallet.mp4 to 1080x1920",
+          "agentName": "CMO (Casper)",
+          "status": "completed",
+          "duration": "1m"
+        },
+        {
+          "id": "t3",
+          "description": "Claude Code full rebuild \u2014 5 scenes from scratch, word-synced timestamps",
+          "agentName": "Claude Code",
+          "status": "completed",
+          "duration": "6m"
+        },
+        {
+          "id": "t4",
+          "description": "Rendered 758 frames \u2192 9.6MB MP4",
           "agentName": "Remotion",
           "status": "completed",
           "duration": "2m"
