@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-02T11:28:00Z",
+  "lastUpdated": "2026-03-02T11:33:00Z",
   "kpis": {
     "activeAgents": 0,
     "tasksCompletedToday": 0,
@@ -10,8 +10,8 @@
   "cronJobs": [
     { "name": "dashboard-sync", "schedule": "every 5m", "status": "running" },
     { "name": "post-scheduler", "schedule": "every 15m", "status": "ok" },
-    { "name": "social-media-manager", "schedule": "every 4h", "status": "ok" },
-    { "name": "scout-intel", "schedule": "every 2h", "status": "error" },
+    { "name": "social-media-manager", "schedule": "every 4h", "status": "idle" },
+    { "name": "scout-intel", "schedule": "every 2h", "status": "ok" },
     { "name": "follower-sync", "schedule": "every 1h", "status": "ok" },
     { "name": "pain-point-scraping", "schedule": "daily 23:00", "status": "error" },
     { "name": "research-cycle", "schedule": "daily 23:30", "status": "ok" },
@@ -53,12 +53,6 @@
     }
   ],
   "errors": [
-    {
-      "agent": "Cron: scout-intel",
-      "severity": "medium",
-      "message": "scout-intel cron in error state",
-      "timestamp": "2026-03-02T06:00:00Z"
-    },
     {
       "agent": "Cron: pain-point-scraping",
       "severity": "medium",
