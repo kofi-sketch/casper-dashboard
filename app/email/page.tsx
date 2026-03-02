@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import Header from "../components/Header";
-import { useLiveRefresh } from "../hooks/useLiveRefresh";
+import { supabase } from "../lib/supabase";
+import { useRealtimeSubscription } from "../hooks/useRealtimeSubscription";
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
@@ -18,10 +18,7 @@ function useIsMobile(breakpoint = 768) {
 }
 
 function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-  );
+  return supabase;
 }
 
 interface Subscriber {
@@ -114,7 +111,11 @@ export default function EmailPage() {
     setLoading(false);
   }, []);
 
-  const { lastRefresh, countdown, formatTime } = useLiveRefresh(fetchData);
+  const { lastRefresh, formatTime } = useRealtimeSubscription(
+    ["email_subscribers", "email_sends"],
+    "*",
+    fetchData
+  );
 
   const updateStatus = async (id: string, status: string) => {
     await getSupabase().from("email_subscribers").update({ status }).eq("id", id);
@@ -179,7 +180,7 @@ export default function EmailPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      <Header activePage="email" countdown={countdown} lastRefresh={lastRefresh} formatTime={formatTime} />
+      <Header activePage="email" live lastRefresh={lastRefresh} formatTime={formatTime} />
       <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       <main style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1200px", margin: "0 auto" }}>

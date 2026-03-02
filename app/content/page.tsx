@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import Header from "../components/Header";
+import { supabase } from "../lib/supabase";
+import { useRealtimeSubscription } from "../hooks/useRealtimeSubscription";
 
 
 interface ContentPost {
@@ -250,10 +251,7 @@ function chartPath(points: number[], width: number, height: number, padding: num
 }
 
 function getSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-  );
+  return supabase;
 }
 
 export default function ContentPage() {
@@ -264,8 +262,6 @@ export default function ContentPage() {
   const [research, setResearch] = useState<ContentResearch[]>([]);
   const [replies, setReplies] = useState<ContentReply[]>([]);
   const [targetAccounts, setTargetAccounts] = useState<TargetAccount[]>([]);
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [countdown, setCountdown] = useState(30);
   const [selectedDay, setSelectedDay] = useState<Date>(new Date());
 
   const cardStyle: React.CSSProperties = {
@@ -333,8 +329,6 @@ export default function ContentPage() {
           .map((item, index) => normalizeTargetAccount(item, index))
           .filter((item): item is TargetAccount => item !== null)
       );
-      setLastRefresh(new Date());
-      setCountdown(30);
       setLoadError(null);
     } catch (error) {
       console.error("Failed to fetch content dashboard data:", error);
@@ -348,18 +342,11 @@ export default function ContentPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      setCountdown((c) => (c > 0 ? c - 1 : 30));
-    }, 1000);
-    return () => clearInterval(tick);
-  }, []);
+  const { lastRefresh, formatTime: fmtTime } = useRealtimeSubscription(
+    ["content_posts", "content_replies", "content_research", "target_accounts"],
+    "*",
+    fetchData
+  );
 
   const queueReply = async (item: ContentResearch) => {
     if (!item.post_url) return;
@@ -539,7 +526,7 @@ export default function ContentPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      <Header activePage="content" countdown={countdown} lastRefresh={lastRefresh} formatTime={formatTime} />
+      <Header activePage="content" live lastRefresh={lastRefresh} formatTime={formatTime} />
 
       <main style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1280px", margin: "0 auto" }}>
         <div

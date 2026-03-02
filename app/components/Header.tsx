@@ -19,6 +19,7 @@ interface HeaderProps {
   countdown?: number;
   lastRefresh?: Date | null;
   formatTime?: (iso: string) => string;
+  live?: boolean;
 }
 
 const NAV_ITEMS = [
@@ -28,7 +29,7 @@ const NAV_ITEMS = [
   { href: "/content", key: "content", label: "🧠 Content" },
 ];
 
-export default function Header({ activePage, countdown, lastRefresh, formatTime }: HeaderProps) {
+export default function Header({ activePage, countdown, lastRefresh, formatTime, live }: HeaderProps) {
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -114,7 +115,18 @@ export default function Header({ activePage, countdown, lastRefresh, formatTime 
               </Link>
             )
           )}
-          {countdown !== undefined && (
+          {live ? (
+            <>
+              <span style={{ color: "#1F1F1F" }}>|</span>
+              <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22C55E", display: "inline-block", animation: "pulse 2s infinite" }} />
+                Live
+              </span>
+              {lastRefresh && formatTime && (
+                <span>Updated {formatTime(lastRefresh.toISOString())}</span>
+              )}
+            </>
+          ) : countdown !== undefined ? (
             <>
               <span style={{ color: "#1F1F1F" }}>|</span>
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -126,7 +138,7 @@ export default function Header({ activePage, countdown, lastRefresh, formatTime 
                 <span>Updated {formatTime(lastRefresh.toISOString())}</span>
               )}
             </>
-          )}
+          ) : null}
         </div>
       )}
     </header>

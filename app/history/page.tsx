@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import Header from "../components/Header";
-import { useLiveRefresh } from "../hooks/useLiveRefresh";
+import { supabase } from "../lib/supabase";
+import { useRealtimeSubscription } from "../hooks/useRealtimeSubscription";
 
 interface PipelineHistoryEntry {
   id: number;
@@ -142,7 +142,6 @@ function HistoryCard({ entry }: { entry: PipelineHistoryEntry }) {
 }
 
 export default function HistoryPage() {
-  const supabase = useMemo(() => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!), []);
   const [entries, setEntries] = useState<PipelineHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
@@ -171,9 +170,13 @@ export default function HistoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, []);
 
-  const { lastRefresh, countdown, formatTime } = useLiveRefresh(fetchHistory);
+  const { lastRefresh, formatTime } = useRealtimeSubscription(
+    "pipeline_history",
+    "*",
+    fetchHistory
+  );
 
   // Search + filter
   const searchFiltered = useMemo(() => {
@@ -228,7 +231,7 @@ export default function HistoryPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      <Header activePage="history" countdown={countdown} lastRefresh={lastRefresh} formatTime={formatTime} />
+      <Header activePage="history" live lastRefresh={lastRefresh} formatTime={formatTime} />
       <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
 
       <main style={{ maxWidth: "900px", margin: "0 auto", padding: "24px 16px" }}>

@@ -2,13 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import Header from "./components/Header";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "./lib/supabase";
+import { useRealtimeSubscription } from "./hooks/useRealtimeSubscription";
 
 interface Pipeline {
   id: string;
@@ -611,10 +607,38 @@ function PipelineRow({ pipeline }: { pipeline: Pipeline }) {
   );
 }
 
+function EstCompletion({ estCompletion, startedAt }: { estCompletion: string; startedAt: string }) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const est = toDateOrNull(estCompletion);
+  const started = toDateOrNull(startedAt);
+  if (!est) return <span>—</span>;
+
+  const estTime = formatTime(estCompletion);
+
+  if (est.getTime() > now) {
+    return <span>{estTime}</span>;
+  }
+
+  const overdueMs = now - est.getTime();
+  const overdueMins = Math.floor(overdueMs / 60000);
+
+  const color = overdueMins >= 5 ? "#EF4444" : "#F59E0B";
+
+  return (
+    <span style={{ color }}>
+      {estTime} <span style={{ fontSize: "11px" }}>(+{overdueMins}m)</span>
+    </span>
+  );
+}
+
 export default function Dashboard() {
   const [state, setState] = useState<DashboardState | null>(null);
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [countdown, setCountdown] = useState(10);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchState = useCallback(async () => {
@@ -627,8 +651,6 @@ export default function Dashboard() {
       if (error) throw error;
       setState(parseDashboardState(data?.state));
       setLoadError(null);
-      setLastRefresh(new Date());
-      setCountdown(10);
     } catch (e) {
       console.error("Failed to fetch state:", e);
       setState((current) => current ?? DEFAULT_DASHBOARD_STATE);
@@ -636,18 +658,11 @@ export default function Dashboard() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchState();
-    const interval = setInterval(fetchState, 10000);
-    return () => clearInterval(interval);
-  }, [fetchState]);
-
-  useEffect(() => {
-    const tick = setInterval(() => {
-      setCountdown((c) => (c > 0 ? c - 1 : 10));
-    }, 1000);
-    return () => clearInterval(tick);
-  }, []);
+  const { lastRefresh, formatTime: fmtTime } = useRealtimeSubscription(
+    "dashboard_state",
+    "*",
+    fetchState
+  );
 
   if (!state) {
     return (
@@ -677,7 +692,7 @@ export default function Dashboard() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
-      <Header activePage="dashboard" countdown={countdown} lastRefresh={lastRefresh} formatTime={formatTime} />
+      <Header activePage="dashboard" live lastRefresh={lastRefresh} formatTime={formatTime} />
 
       <style>{`
         @keyframes pulse {
@@ -974,7 +989,7 @@ export default function Dashboard() {
                         {formatTime(task.startedAt)}
                       </td>
                       <td style={{ color: "#A0A0A0", whiteSpace: "nowrap" }}>
-                        {formatTime(task.estCompletion)}
+                        <EstCompletion estCompletion={task.estCompletion} startedAt={task.startedAt} />
                       </td>
                     </tr>
                   ))}

@@ -1,3 +1,4 @@
+// @deprecated — Use useRealtimeSubscription instead for live Supabase subscriptions.
 import { useState, useEffect, useCallback, useRef } from "react";
 
 const REFRESH_INTERVAL = 30; // seconds

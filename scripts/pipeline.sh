@@ -214,8 +214,8 @@ with open('$STATE_FILE', 'w') as f:
 cmd_check() {
   ensure_state_file
   python3 -c "
-import json
-from datetime import datetime, timezone
+import json, subprocess
+from datetime import datetime, timezone, timedelta
 
 with open('$STATE_FILE', 'r') as f:
     state = json.load(f)
@@ -227,6 +227,7 @@ if not active:
     print('No active agents.')
 else:
     print(f'{len(active)} active agent(s):')
+    overdue_tasks = []
     for entry in active:
         started_str = entry.get('startedAt', '')
         task = entry.get('task', '?')
@@ -241,10 +242,55 @@ else:
                 age = f'{mins}m'
                 if mins > 5:
                     stale = True
+                    overdue_tasks.append(task)
             except:
                 pass
         status = ' ** STALE (>5min) — check for silent failure! **' if stale else ''
         print(f'  [{agent}] {task} — running {age}{status}')
+
+    # Rolling est. extension: update estCompletion for overdue tasks in dashboard_state
+    if overdue_tasks:
+        try:
+            import urllib.request
+            SUPABASE_URL = '$SUPABASE_URL' if '$SUPABASE_URL' != '' else 'https://stboueshyjvooiftfuxm.supabase.co'
+            ANON_KEY = '$ANON_KEY' if '$ANON_KEY' != '' else 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Ym91ZXNoeWp2b29pZnRmdXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDA0MDAsImV4cCI6MjA4NjMxNjQwMH0.posxmZ-SQAm0Y9VQwtD5VSt7LQrOM23J9h2oG3SCmKU'
+            req = urllib.request.Request(
+                f'{SUPABASE_URL}/rest/v1/dashboard_state?id=eq.1&select=state',
+                headers={'apikey': ANON_KEY, 'Authorization': f'Bearer {ANON_KEY}'}
+            )
+            resp = urllib.request.urlopen(req)
+            data = json.loads(resp.read())[0]['state']
+            new_est = (now + timedelta(minutes=3)).strftime('%Y-%m-%dT%H:%M:%SZ')
+            updated = False
+            for t in data.get('activeTasks', []):
+                if t.get('taskDescription') in overdue_tasks:
+                    est_str = t.get('estCompletion', '')
+                    if est_str:
+                        try:
+                            est_time = datetime.fromisoformat(est_str.replace('Z', '+00:00'))
+                            if est_time < now:
+                                t['estCompletion'] = new_est
+                                updated = True
+                        except:
+                            pass
+            if updated:
+                data['lastUpdated'] = now.strftime('%Y-%m-%dT%H:%M:%SZ')
+                payload = json.dumps({'state': data, 'updated_at': now.strftime('%Y-%m-%dT%H:%M:%SZ')}).encode()
+                patch_req = urllib.request.Request(
+                    f'{SUPABASE_URL}/rest/v1/dashboard_state?id=eq.1',
+                    data=payload,
+                    method='PATCH',
+                    headers={
+                        'apikey': ANON_KEY,
+                        'Authorization': f'Bearer {ANON_KEY}',
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    }
+                )
+                urllib.request.urlopen(patch_req)
+                print(f'  >> Updated estCompletion for {len(overdue_tasks)} overdue task(s) to now+3m')
+        except Exception as e:
+            print(f'  >> Failed to update overdue estimates: {e}')
 
 recent = state.get('history', [])[:5]
 if recent:

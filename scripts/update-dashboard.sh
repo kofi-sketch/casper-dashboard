@@ -20,16 +20,17 @@ NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 # Auto-estimate if not provided
 if [ -z "$EST_MINS" ]; then
   case "$AGENT" in
-    *Codex*|*codex*) EST_MINS=2 ;;
+    *Codex*|*codex*) EST_MINS=3 ;;
     *Claude*|*claude*)
       case "$TASK" in
-        *[Rr]esearch*) EST_MINS=3 ;;
-        *[Bb]uild*|*[Cc]reate*|*PDF*|*html*) EST_MINS=4 ;;
-        *[Ss]trategy*|*[Pp]lan*) EST_MINS=3 ;;
-        *) EST_MINS=3 ;;
+        *[Rr]esearch*) EST_MINS=5 ;;
+        *[Bb]uild*|*[Cc]reate*|*PDF*|*html*) EST_MINS=8 ;;
+        *[Ss]trategy*|*[Pp]lan*) EST_MINS=5 ;;
+        *[Qq][Aa]*|*test*|*review*) EST_MINS=3 ;;
+        *) EST_MINS=5 ;;
       esac
       ;;
-    *) EST_MINS=3 ;;
+    *) EST_MINS=5 ;;
   esac
 fi
 
