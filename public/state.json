@@ -1,58 +1,26 @@
 {
-  "lastUpdated": "2026-03-02T21:01:49-03:00",
+  "lastUpdated": "2026-03-03T11:22:00-03:00",
   "kpis": {
-    "activeAgents": 0,
-    "tasksCompletedToday": 10,
-    "errorsToday": 3,
-    "tasksCompleted": 42,
+    "activeAgents": 1,
+    "tasksCompletedToday": 1,
+    "errorsToday": 0,
+    "tasksCompleted": 43,
     "followers": {
       "gettraqd": 4,
       "igobykofi": 1
     }
   },
-  "pipelines": [
+  "pipelines": [],
+  "activeTasks": [
     {
-      "id": "substack-setup",
-      "name": "Substack Content Pipeline",
-      "status": "building",
-      "stages": [
-        "Research",
-        "Strategy",
-        "Writing",
-        "QA",
-        "Publish"
-      ],
-      "completed_stages": [
-        "Research"
-      ],
-      "current_stage": "Strategy",
-      "started_at": "2026-03-02T11:30:00Z",
-      "est_completion": "2026-03-02T13:00:00Z"
-    },
-    {
-      "id": "uk-tofu-v7",
-      "name": "Traqd UK 20s Ad: V7 Build",
-      "status": "building",
-      "stages": [
-        "VO Re-record",
-        "Build",
-        "Render"
-      ],
-      "completed_stages": [
-        "VO Re-record"
-      ],
-      "current_stage": "Build",
-      "started_at": "2026-03-02T13:56:00Z",
-      "est_completion": "2026-03-02T14:10:00Z"
+      "id": "video-work",
+      "agent": "CMO (Casper)",
+      "task": "Video production work (separate session)",
+      "startedAt": "2026-03-03T11:00:00-03:00",
+      "priority": "high"
     }
   ],
-  "activeTasks": [],
   "cronJobs": [
-    {
-      "name": "dashboard-sync",
-      "schedule": "every 5m",
-      "status": "running"
-    },
     {
       "name": "post-scheduler",
       "schedule": "every 15m",
@@ -74,11 +42,6 @@
       "status": "idle"
     },
     {
-      "name": "pain-point-scraping",
-      "schedule": "daily 23:00",
-      "status": "error"
-    },
-    {
       "name": "research-cycle",
       "schedule": "daily 23:30",
       "status": "ok"
@@ -92,22 +55,18 @@
       "name": "qa-review",
       "schedule": "daily 04:00",
       "status": "ok"
-    },
-    {
-      "name": "morning-briefing",
-      "schedule": "daily 06:45",
-      "status": "error"
-    },
-    {
-      "name": "ppir-weekly",
-      "schedule": "weekly Mon 05:00",
-      "status": "error"
     }
   ],
   "recentCompletions": [
     {
       "agent": "CMO (Casper)",
-      "task": "20s UK TOFU Ad V3 delivered (Michael C. Vincent VO, \u00a39,999\u2192\u00a30 counter)",
+      "task": "Substack Week 2: 'The Quiet Part' drafted, QA'd, delivered as PDF",
+      "completedAt": "2026-03-02T13:28:00Z",
+      "duration": "1h 30m"
+    },
+    {
+      "agent": "CMO (Casper)",
+      "task": "20s UK TOFU Ad V3 delivered (Michael C. Vincent VO)",
       "completedAt": "2026-03-02T06:00:00Z",
       "duration": "multi-session"
     },
@@ -118,62 +77,13 @@
       "duration": "multi-session"
     },
     {
-      "agent": "CMO (Casper)",
-      "task": "ACP agent teams architecture configured (PTY fallback active)",
-      "completedAt": "2026-03-02T05:00:00Z",
-      "duration": "2h"
-    },
-    {
       "agent": "Social Media Manager",
-      "task": "Posted 4 tweets (2x @gettraqd, 2x @igobykofi) with account separation fix",
+      "task": "Posted 4 tweets (2x @gettraqd, 2x @igobykofi)",
       "completedAt": "2026-03-02T04:00:00Z",
       "duration": "auto"
-    },
-    {
-      "agent": "Research Cycle",
-      "task": "IRS audit angle, creator middle class gap, fintech whitespace research",
-      "completedAt": "2026-03-02T03:30:00Z",
-      "duration": "auto"
     }
   ],
-  "errors": [
-    {
-      "agent": "Cron: pain-point-scraping",
-      "severity": "medium",
-      "message": "pain-point-scraping failed \u2014 path issue writing output file",
-      "timestamp": "2026-03-02T03:00:00Z"
-    },
-    {
-      "agent": "Cron: morning-briefing",
-      "severity": "medium",
-      "message": "morning-briefing cron failed on run at 06:45",
-      "timestamp": "2026-03-02T10:45:00Z"
-    },
-    {
-      "agent": "Cron: ppir-weekly",
-      "severity": "medium",
-      "message": "PPIR weekly cron failed on Monday 05:00 run",
-      "timestamp": "2026-03-02T09:00:00Z"
-    },
-    {
-      "agent": "CMO (Casper)",
-      "severity": "high",
-      "message": "ERR-032: V2 build completed at 01:55 AM, not delivered until 07:10 \u2014 5h gap",
-      "timestamp": "2026-03-02T07:10:00Z"
-    },
-    {
-      "agent": "CMO (Casper)",
-      "severity": "high",
-      "message": "ERR-030: Missed agent completion, 40 min idle (build finished 8:21 PM)",
-      "timestamp": "2026-03-02T01:21:00Z"
-    },
-    {
-      "agent": "CMO (Casper)",
-      "severity": "high",
-      "message": "ERR-031: Missed QA completion again, 38 min idle",
-      "timestamp": "2026-03-02T02:00:00Z"
-    }
-  ],
+  "errors": [],
   "systemStatus": {
     "xApi": "connected",
     "email": "connected",
@@ -182,532 +92,38 @@
     "supabase": "connected",
     "elevenlabs": "connected",
     "braveSearch": "connected",
-    "acpRuntime": "broken \u2014 PTY fallback active"
+    "acpRuntime": "broken — PTY fallback active"
   },
   "pipeline_history": [
     {
-      "id": "x-reauth",
-      "name": "X Account Re-Authentication",
+      "id": "substack-week2",
+      "name": "Substack Week 2: The Quiet Part",
       "status": "completed",
-      "stages": [
-        "@igobykofi OAuth1+Bearer",
-        "@gettraqd OAuth1+Bearer",
-        "Test Posts"
-      ],
-      "completed_stages": [
-        "@igobykofi OAuth1+Bearer",
-        "@gettraqd OAuth1+Bearer",
-        "Test Posts"
-      ],
-      "started_at": "2026-03-01T14:35:00Z",
-      "completed_at": "2026-03-01T14:47:00Z",
-      "duration": "12m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Cleared broken gettraqd OAuth2 tokens",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "1m"
-        },
-        {
-          "id": "t2",
-          "description": "Stored @igobykofi OAuth1 + Bearer keys",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t3",
-          "description": "Verified @igobykofi \u2014 whoami confirmed",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "1m"
-        },
-        {
-          "id": "t4",
-          "description": "Stored @gettraqd OAuth1 + Bearer keys",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t5",
-          "description": "Verified @gettraqd \u2014 whoami confirmed",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "1m"
-        },
-        {
-          "id": "t6",
-          "description": "Test post + delete on both accounts",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "2m"
-        }
-      ]
-    },
-    {
-      "id": "content-strategy",
-      "name": "X Content Strategy Setup",
-      "status": "completed",
-      "stages": [
-        "Research",
-        "Strategy",
-        "Brand Voices",
-        "Agent Config"
-      ],
-      "completed_stages": [
-        "Research",
-        "Strategy",
-        "Brand Voices",
-        "Agent Config"
-      ],
-      "started_at": "2026-03-01T15:00:00Z",
-      "completed_at": "2026-03-01T17:30:00Z",
-      "duration": "2h 30m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Researched X growth strategies (Harry Dry, Ship30for30)",
-          "agentName": "Research Agent",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t2",
-          "description": "Analyzed competitor accounts and engagement patterns",
-          "agentName": "Research Agent",
-          "status": "completed",
-          "duration": "10m"
-        },
-        {
-          "id": "t3",
-          "description": "Defined brand voices for @gettraqd and @igobykofi",
-          "agentName": "Strategy Agent",
-          "status": "completed",
-          "duration": "20m"
-        },
-        {
-          "id": "t4",
-          "description": "Created BRAND-VOICES.md with tone/topic guidelines",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t5",
-          "description": "Set up 5 content agents (Scout, Reply Sniper, Ghostwriter, Intel, Strategist)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "30m"
-        },
-        {
-          "id": "t6",
-          "description": "Configured crons for automated posting",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "10m"
-        }
-      ]
-    },
-    {
-      "id": "tofu-research",
-      "name": "Traqd 20s TOFU Ad: Research & Script",
-      "status": "completed",
-      "stages": [
-        "Research",
-        "Script (US)",
-        "Script (UK)"
-      ],
-      "completed_stages": [
-        "Research",
-        "Script (US)",
-        "Script (UK)"
-      ],
-      "started_at": "2026-03-01T20:00:00Z",
-      "completed_at": "2026-03-01T22:00:00Z",
-      "duration": "2h",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Researched UK freelancer pain points (HMRC, self-assessment, PAYE)",
-          "agentName": "Research Agent",
-          "status": "completed",
-          "duration": "20m"
-        },
-        {
-          "id": "t2",
-          "description": "Analyzed hook formats and visual pacing for short-form ads",
-          "agentName": "Research Agent",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t3",
-          "description": "Compiled HMRC stats (\u00a34.5K-\u00a38.5K missed deductions avg)",
-          "agentName": "Research Agent",
-          "status": "completed",
-          "duration": "10m"
-        },
-        {
-          "id": "t4",
-          "description": "Wrote US script using Killer Script System",
-          "agentName": "Script Writer",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t5",
-          "description": "Adapted UK script (HMRC, expenses, January deadline)",
-          "agentName": "Script Writer",
-          "status": "completed",
-          "duration": "10m"
-        },
-        {
-          "id": "t6",
-          "description": "Kofi provided frame-level production spec (5 scenes, 14 components)",
-          "agentName": "Kofi (Manual)",
-          "status": "completed",
-          "duration": "30m"
-        }
-      ]
-    },
-    {
-      "id": "tofu-assets",
-      "name": "Traqd 20s TOFU Ad: Asset Generation",
-      "status": "completed",
-      "stages": [
-        "Image Gen",
-        "VO Recording",
-        "Whisper Timestamps"
-      ],
-      "completed_stages": [
-        "Image Gen",
-        "VO Recording",
-        "Whisper Timestamps"
-      ],
-      "started_at": "2026-03-02T03:00:00Z",
-      "completed_at": "2026-03-02T04:30:00Z",
-      "duration": "1h 30m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Generated 5 AI images (freelancer-alone, self-assessment-chaos, invoice-chaos, hmrc-letter, london-aerial)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t2",
-          "description": "Recorded VO V1 \u2014 Juniper (American, 19.2s)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t3",
-          "description": "Recorded VO V2 \u2014 George (British, 23s)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t4",
-          "description": "Recorded VO V3 \u2014 Michael C. Vincent (25.3s, PAYE fix)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t5",
-          "description": "Whisper word-level timestamps for all VO versions",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "3m"
-        },
-        {
-          "id": "t6",
-          "description": "Kofi filmed real empty wallet footage (5s, vertical)",
-          "agentName": "Kofi (Manual)",
-          "status": "completed",
-          "duration": "5m"
-        }
-      ]
-    },
-    {
-      "id": "tofu-v1",
-      "name": "Traqd 20s TOFU Ad: V1 Build + Render",
-      "status": "completed",
-      "stages": [
-        "Build",
-        "Render",
-        "Deliver"
-      ],
-      "completed_stages": [
-        "Build",
-        "Render",
-        "Deliver"
-      ],
-      "started_at": "2026-03-02T04:30:00Z",
-      "completed_at": "2026-03-02T05:15:00Z",
-      "duration": "45m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Claude Code built Remotion project (5 scenes, TypeScript)",
-          "agentName": "Claude Code",
-          "status": "completed",
-          "duration": "20m"
-        },
-        {
-          "id": "t2",
-          "description": "Rendered 690 frames (5.9MB MP4)",
-          "agentName": "Remotion",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t3",
-          "description": "Delivered V1 to Kofi for review",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "1m"
-        }
-      ]
-    },
-    {
-      "id": "tofu-v2v3",
-      "name": "Traqd 20s TOFU Ad: V2-V3 Iterations",
-      "status": "completed",
-      "stages": [
-        "V2 Build",
-        "V2 Feedback",
-        "V3 Build",
-        "V3 Render"
-      ],
-      "completed_stages": [
-        "V2 Build",
-        "V2 Feedback",
-        "V3 Build",
-        "V3 Render"
-      ],
-      "started_at": "2026-03-02T10:00:00Z",
-      "completed_at": "2026-03-02T10:47:00Z",
-      "duration": "47m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "V2: Switched to George VO, removed captions + green overlays",
-          "agentName": "Claude Code",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t2",
-          "description": "V2: Rendered 690 frames (7.9MB), delivered",
-          "agentName": "Remotion",
-          "status": "completed",
-          "duration": "10m"
-        },
-        {
-          "id": "t3",
-          "description": "Kofi feedback: Michael Vincent voice, PAYE spelling, money counter, no free CTA",
-          "agentName": "Kofi (Feedback)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t4",
-          "description": "V3: New VO (Michael C. Vincent), \u00a39,999\u2192\u00a30 counter, phone mockup no border",
-          "agentName": "Claude Code",
-          "status": "completed",
-          "duration": "12m"
-        },
-        {
-          "id": "t5",
-          "description": "V3: Rendered 759 frames (9.2MB), delivered",
-          "agentName": "Remotion",
-          "status": "completed",
-          "duration": "5m"
-        }
-      ]
-    },
-    {
-      "id": "social-posts-mar2",
-      "name": "Social Media Posts \u2014 March 2",
-      "status": "completed",
-      "stages": [
-        "Draft",
-        "Post",
-        "Verify"
-      ],
-      "completed_stages": [
-        "Draft",
-        "Post",
-        "Verify"
-      ],
-      "started_at": "2026-03-02T11:20:00Z",
-      "completed_at": "2026-03-02T11:40:00Z",
-      "duration": "20m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "@gettraqd: IRS platform reporting urgency tweet",
-          "agentName": "Social Media Agent",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t2",
-          "description": "@gettraqd: Freelancer tax mindset reframe tweet",
-          "agentName": "Social Media Agent",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t3",
-          "description": "Deleted personal tweets wrongly posted to @gettraqd",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "3m"
-        },
-        {
-          "id": "t4",
-          "description": "@igobykofi: Loneliness tax (raw/journal) tweet",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t5",
-          "description": "@igobykofi: Paraguay comfort zone tweet",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t6",
-          "description": "Fixed social-media-manager cron \u2014 strict account separation",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "5m"
-        }
-      ]
-    },
-    {
-      "id": "tofu-v4",
-      "name": "Traqd 20s TOFU Ad: V4 (Real Footage)",
-      "status": "completed",
-      "stages": [
-        "VO Re-record",
-        "Asset Prep",
-        "Build",
-        "Render"
-      ],
-      "completed_stages": [
-        "VO Re-record",
-        "Asset Prep",
-        "Build",
-        "Render"
-      ],
-      "started_at": "2026-03-02T10:54:00Z",
-      "completed_at": "2026-03-02T11:44:00Z",
-      "duration": "50m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Michael C. Vincent VO v3 \u2014 PAYE spoken naturally (not spelled)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "3m"
-        },
-        {
-          "id": "t2",
-          "description": "Whisper word-level timestamps for new VO",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "2m"
-        },
-        {
-          "id": "t3",
-          "description": "Generated empty wallet AI image (backup)",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t4",
-          "description": "Kofi filmed real empty wallet footage (5s vertical)",
-          "agentName": "Kofi (Manual)",
-          "status": "completed",
-          "duration": "5m"
-        },
-        {
-          "id": "t5",
-          "description": "Claude Code: Scene01 with OffthreadVideo (real footage), no black screens, crossfades, logo fix, no white phone border",
-          "agentName": "Claude Code",
-          "status": "completed",
-          "duration": "15m"
-        },
-        {
-          "id": "t6",
-          "description": "Rendered 758 frames \u2192 10.6MB MP4",
-          "agentName": "Remotion",
-          "status": "completed",
-          "duration": "2m"
-        }
-      ]
+      "stages": ["Research", "Strategy", "Writing", "QA", "Deliver"],
+      "completed_stages": ["Research", "Strategy", "Writing", "QA", "Deliver"],
+      "started_at": "2026-03-02T11:54:00Z",
+      "completed_at": "2026-03-02T13:28:00Z",
+      "duration": "1h 34m"
     },
     {
       "id": "tofu-v5",
       "name": "Traqd 20s TOFU Ad: V5 (Full Rebuild)",
       "status": "completed",
-      "stages": [
-        "Spec",
-        "ffmpeg Scale",
-        "Build",
-        "Render"
-      ],
-      "completed_stages": [
-        "Spec",
-        "ffmpeg Scale",
-        "Build",
-        "Render"
-      ],
+      "stages": ["Spec", "ffmpeg Scale", "Build", "Render"],
+      "completed_stages": ["Spec", "ffmpeg Scale", "Build", "Render"],
       "started_at": "2026-03-02T12:41:00Z",
       "completed_at": "2026-03-02T12:53:00Z",
-      "duration": "12m",
-      "tasks": [
-        {
-          "id": "t1",
-          "description": "Complete V5 spec (93 lines) \u2014 all feedback consolidated",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "3m"
-        },
-        {
-          "id": "t2",
-          "description": "ffmpeg pre-scale empty-wallet.mp4 to 1080x1920",
-          "agentName": "CMO (Casper)",
-          "status": "completed",
-          "duration": "1m"
-        },
-        {
-          "id": "t3",
-          "description": "Claude Code full rebuild \u2014 5 scenes from scratch, word-synced timestamps",
-          "agentName": "Claude Code",
-          "status": "completed",
-          "duration": "6m"
-        },
-        {
-          "id": "t4",
-          "description": "Rendered 758 frames \u2192 9.6MB MP4",
-          "agentName": "Remotion",
-          "status": "completed",
-          "duration": "2m"
-        }
-      ]
+      "duration": "12m"
+    },
+    {
+      "id": "tofu-v4",
+      "name": "Traqd 20s TOFU Ad: V4 (Real Footage)",
+      "status": "completed",
+      "stages": ["VO Re-record", "Asset Prep", "Build", "Render"],
+      "completed_stages": ["VO Re-record", "Asset Prep", "Build", "Render"],
+      "started_at": "2026-03-02T10:54:00Z",
+      "completed_at": "2026-03-02T11:44:00Z",
+      "duration": "50m"
     }
   ]
 }
