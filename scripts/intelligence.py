@@ -152,12 +152,10 @@ def draft_content(findings):
     today = now.strftime("%Y-%m-%d")
     
     time_slots = [
-        ("08:00", "@igobykofi"),   # Morning philosophical
         ("09:00", "@gettraqd"),    # Morning product
-        ("12:00", "@igobykofi"),   # Midday insight
         ("14:00", "@gettraqd"),    # Afternoon product
-        ("17:00", "@igobykofi"),   # Evening reflection
         ("20:00", "@gettraqd"),    # Night engagement
+        # @igobykofi slots removed — kofi-personal auth broken, restore when fixed
     ]
     
     # Content templates based on brand voices
@@ -242,13 +240,9 @@ def queue_replies(findings):
     ]
     
     for i, finding in enumerate(findings[:10]):
-        # Alternate between accounts
-        if i % 2 == 0:
-            account = "@igobykofi"
-            style = igobykofi_reply_styles[i % len(igobykofi_reply_styles)]
-        else:
-            account = "@gettraqd"
-            style = gettraqd_reply_styles[i % len(gettraqd_reply_styles)]
+        # @igobykofi replies disabled — kofi-personal auth broken, restore when fixed
+        account = "@gettraqd"
+        style = gettraqd_reply_styles[i % len(gettraqd_reply_styles)]
         
         reply_text = f"{style}{finding['post_preview'][:50]}..."
         

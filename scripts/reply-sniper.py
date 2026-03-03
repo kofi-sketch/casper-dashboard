@@ -60,6 +60,9 @@ if __name__ == "__main__":
     
     sent = 0
     for reply in replies:
+        if reply["account"] == "@igobykofi":
+            print(f"  ⏸️  SKIPPED (kofi-personal auth broken): reply to {reply['target_author']}")
+            continue
         post_id = extract_post_id(reply["target_post_url"])
         if not post_id:
             print(f"  ⚠️ Could not extract post ID from {reply['target_post_url']}")

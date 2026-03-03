@@ -60,6 +60,9 @@ if __name__ == "__main__":
         exit(0)
     
     for post in posts:
+        if post["account"] == "@igobykofi":
+            print(f"  ⏸️  SKIPPED (kofi-personal auth broken): {post['content'][:60]}...")
+            continue
         print(f"  Publishing: {post['account']} — {post['content'][:60]}...")
         post_id = post_tweet(post["content"], post["account"])
         
