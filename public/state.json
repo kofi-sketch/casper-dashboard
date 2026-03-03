@@ -1,25 +1,43 @@
 {
-  "lastUpdated": "2026-03-03T11:22:00-03:00",
+  "lastUpdated": "2026-03-03T11:23:32-03:00",
   "kpis": {
-    "activeAgents": 1,
-    "tasksCompletedToday": 1,
+    "activeAgents": 0,
+    "tasksCompletedToday": 8,
     "errorsToday": 0,
-    "tasksCompleted": 43,
+    "tasksCompleted": 51,
     "followers": {
       "gettraqd": 4,
       "igobykofi": 1
     }
   },
-  "pipelines": [],
-  "activeTasks": [
+  "pipelines": [
     {
-      "id": "video-work",
-      "agent": "CMO (Casper)",
-      "task": "Video production work (separate session)",
-      "startedAt": "2026-03-03T11:00:00-03:00",
-      "priority": "high"
+      "id": "country-variants-v5",
+      "name": "Country Variant Ads V5 (Tax Pain)",
+      "status": "completed",
+      "stages": [
+        "VO Generation",
+        "Whisper Timestamps",
+        "Factory Build",
+        "Image Generation",
+        "Full Localization",
+        "Render",
+        "Deliver"
+      ],
+      "completed_stages": [
+        "VO Generation",
+        "Whisper Timestamps",
+        "Factory Build",
+        "Image Generation",
+        "Full Localization",
+        "Render",
+        "Deliver"
+      ],
+      "started_at": "2026-03-02T20:00:00-03:00",
+      "completed_at": "2026-03-03T11:23:32-03:00"
     }
   ],
+  "activeTasks": [],
   "cronJobs": [
     {
       "name": "post-scheduler",
@@ -60,26 +78,32 @@
   "recentCompletions": [
     {
       "agent": "CMO (Casper)",
-      "task": "Substack Week 2: 'The Quiet Part' drafted, QA'd, delivered as PDF",
-      "completedAt": "2026-03-02T13:28:00Z",
-      "duration": "1h 30m"
+      "task": "Country Variant Ads V5 \u2014 5 fully localized videos (US/AU/CA/IE/NZ) with HD images, localized currency, captions, city skylines",
+      "completedAt": "2026-03-03T11:23:32-03:00",
+      "duration": "~14h"
     },
     {
       "agent": "CMO (Casper)",
-      "task": "20s UK TOFU Ad V3 delivered (Michael C. Vincent VO)",
-      "completedAt": "2026-03-02T06:00:00Z",
-      "duration": "multi-session"
+      "task": "Country Variant Ads V4 \u2014 City skylines + fresh images",
+      "completedAt": "2026-03-03T10:33:00-03:00",
+      "duration": "30m"
     },
     {
       "agent": "CMO (Casper)",
-      "task": "Freelancer Tax Pain 57s ad V5 delivered",
-      "completedAt": "2026-03-02T04:00:00Z",
-      "duration": "multi-session"
+      "task": "Country Variant Ads V3 \u2014 Currency counter fix",
+      "completedAt": "2026-03-03T10:07:00-03:00",
+      "duration": "20m"
     },
     {
       "agent": "Social Media Manager",
-      "task": "Posted 4 tweets (2x @gettraqd, 2x @igobykofi)",
-      "completedAt": "2026-03-02T04:00:00Z",
+      "task": "2 tweets posted to @gettraqd (tax pain content)",
+      "completedAt": "2026-03-03T00:33:00-03:00",
+      "duration": "auto"
+    },
+    {
+      "agent": "Scout Intel",
+      "task": "3 intel runs \u2014 30 findings inserted into content_research",
+      "completedAt": "2026-03-03T10:32:00-03:00",
       "duration": "auto"
     }
   ],
@@ -92,15 +116,27 @@
     "supabase": "connected",
     "elevenlabs": "connected",
     "braveSearch": "connected",
-    "acpRuntime": "broken — PTY fallback active"
+    "acpRuntime": "broken \u2014 PTY fallback active"
   },
   "pipeline_history": [
     {
       "id": "substack-week2",
       "name": "Substack Week 2: The Quiet Part",
       "status": "completed",
-      "stages": ["Research", "Strategy", "Writing", "QA", "Deliver"],
-      "completed_stages": ["Research", "Strategy", "Writing", "QA", "Deliver"],
+      "stages": [
+        "Research",
+        "Strategy",
+        "Writing",
+        "QA",
+        "Deliver"
+      ],
+      "completed_stages": [
+        "Research",
+        "Strategy",
+        "Writing",
+        "QA",
+        "Deliver"
+      ],
       "started_at": "2026-03-02T11:54:00Z",
       "completed_at": "2026-03-02T13:28:00Z",
       "duration": "1h 34m"
@@ -109,8 +145,18 @@
       "id": "tofu-v5",
       "name": "Traqd 20s TOFU Ad: V5 (Full Rebuild)",
       "status": "completed",
-      "stages": ["Spec", "ffmpeg Scale", "Build", "Render"],
-      "completed_stages": ["Spec", "ffmpeg Scale", "Build", "Render"],
+      "stages": [
+        "Spec",
+        "ffmpeg Scale",
+        "Build",
+        "Render"
+      ],
+      "completed_stages": [
+        "Spec",
+        "ffmpeg Scale",
+        "Build",
+        "Render"
+      ],
       "started_at": "2026-03-02T12:41:00Z",
       "completed_at": "2026-03-02T12:53:00Z",
       "duration": "12m"
@@ -119,11 +165,47 @@
       "id": "tofu-v4",
       "name": "Traqd 20s TOFU Ad: V4 (Real Footage)",
       "status": "completed",
-      "stages": ["VO Re-record", "Asset Prep", "Build", "Render"],
-      "completed_stages": ["VO Re-record", "Asset Prep", "Build", "Render"],
+      "stages": [
+        "VO Re-record",
+        "Asset Prep",
+        "Build",
+        "Render"
+      ],
+      "completed_stages": [
+        "VO Re-record",
+        "Asset Prep",
+        "Build",
+        "Render"
+      ],
       "started_at": "2026-03-02T10:54:00Z",
       "completed_at": "2026-03-02T11:44:00Z",
       "duration": "50m"
+    },
+    {
+      "id": "country-variants-v5",
+      "name": "Country Variant Ads V5 (Full Localization)",
+      "status": "completed",
+      "stages": [
+        "VO Generation",
+        "Whisper Timestamps",
+        "Factory Build",
+        "Image Gen",
+        "Localization",
+        "Render",
+        "Deliver"
+      ],
+      "completed_stages": [
+        "VO Generation",
+        "Whisper Timestamps",
+        "Factory Build",
+        "Image Gen",
+        "Localization",
+        "Render",
+        "Deliver"
+      ],
+      "started_at": "2026-03-02T20:00:00-03:00",
+      "completed_at": "2026-03-03T11:23:32-03:00",
+      "duration": "~14h (overnight)"
     }
   ]
 }
