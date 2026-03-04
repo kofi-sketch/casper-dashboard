@@ -332,11 +332,7 @@ export default function ContentPage() {
       setLoadError(null);
     } catch (error) {
       console.error("Failed to fetch content dashboard data:", error);
-      setPosts([]);
-      setResearch([]);
-      setReplies([]);
-      setTargetAccounts([]);
-      setLoadError("Unable to refresh content data.");
+      setLoadError("Unable to refresh content data. Showing empty state.");
     } finally {
       setLoading(false);
     }
@@ -518,8 +514,31 @@ export default function ContentPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#000", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: "#A0A0A0", fontFamily: "'Inter', sans-serif" }}>{loadError || "Loading…"}</span>
+      <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
+        <Header activePage="content" live={false} lastRefresh={null} formatTime={formatTime} />
+        <main style={{ padding: "24px", maxWidth: "1280px", margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "14px", marginBottom: "24px" }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} style={{ background: "#0D0D0D", border: "1px solid #1F1F1F", borderRadius: "12px", padding: "20px" }}>
+                <div style={{ background: "#1A1A1A", borderRadius: "4px", height: "12px", width: "80%", marginBottom: "12px" }} />
+                <div style={{ background: "#1A1A1A", borderRadius: "4px", height: "28px", width: "50%" }} />
+              </div>
+            ))}
+          </div>
+          <div style={{ background: "#0D0D0D", border: "1px solid #1F1F1F", borderRadius: "12px", padding: "20px" }}>
+            <div style={{ background: "#1A1A1A", borderRadius: "4px", height: "14px", width: "160px", marginBottom: "16px" }} />
+            <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} style={{ background: "#111", border: "1px solid #1F1F1F", borderRadius: "8px", width: "80px", height: "56px" }} />
+              ))}
+            </div>
+            <div style={{ background: "#111", border: "1px solid #1F1F1F", borderRadius: "10px", padding: "24px", textAlign: "center" }}>
+              <div style={{ color: "#555", fontSize: "13px", fontFamily: "'Inter', sans-serif" }}>
+                {loadError || "Loading content…"}
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
