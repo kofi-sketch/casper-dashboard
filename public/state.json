@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-04T07:31:00-03:00",
+  "lastUpdated": "2026-03-04T08:00:00-03:00",
   "kpis": {
     "activeAgents": 1,
     "tasksCompletedToday": 1,
@@ -21,12 +21,12 @@
       "completed_at": "2026-03-03T19:15:00-03:00",
       "tasks": [
         {"name": "Analyze PAYE pronunciation issues across 6 countries", "stage": "Research", "status": "completed", "agent": "casper"},
-        {"name": "Design hyphenated P-A-Y-E approach + voice settings per country", "stage": "Strategy", "status": "completed", "agent": "casper"},
-        {"name": "Re-record 8 VOs (UK/IE/NZ/AU male+female) via ElevenLabs", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Whisper timestamp extraction + scene rebuild (all 8 projects)", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Remotion render 8 videos + ffmpeg music mix", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Verify PAYE pronunciation in Whisper output", "stage": "QA", "status": "completed", "agent": "codex"},
-        {"name": "Deliver 12 final videos to Kofi", "stage": "Deliver", "status": "completed", "agent": "casper"}
+        {"name": "Design hyphenated P-A-Y-E approach + voice settings", "stage": "Strategy", "status": "completed", "agent": "casper"},
+        {"name": "Re-record 8 VOs via ElevenLabs", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Whisper timestamps + scene rebuild all 8 projects", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Remotion render + ffmpeg music mix", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Verify PAYE in Whisper output", "stage": "QA", "status": "completed", "agent": "codex"},
+        {"name": "Deliver 12 videos", "stage": "Deliver", "status": "completed", "agent": "casper"}
       ]
     },
     {
@@ -38,13 +38,13 @@
       "started_at": "2026-03-03T14:00:00-03:00",
       "completed_at": "2026-03-03T17:30:00-03:00",
       "tasks": [
-        {"name": "Source purse video + female voice mapping per country", "stage": "Research", "status": "completed", "agent": "claude"},
-        {"name": "Design female variant pipeline (clone male, swap VO+Scene01)", "stage": "Strategy", "status": "completed", "agent": "claude"},
+        {"name": "Source purse video + female voice mapping", "stage": "Research", "status": "completed", "agent": "claude"},
+        {"name": "Design female variant pipeline", "stage": "Strategy", "status": "completed", "agent": "claude"},
         {"name": "Record 6 female VOs with expressive settings", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Clone 6 male projects, inject purse video + female VO", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Render 6 female variants + music mix", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Clone projects inject purse video + female VO", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Render 6 + music mix", "stage": "Build", "status": "completed", "agent": "claude"},
         {"name": "Verify voice naturalness + caption sync", "stage": "QA", "status": "completed", "agent": "codex"},
-        {"name": "Deliver 6 female videos to Kofi", "stage": "Deliver", "status": "completed", "agent": "casper"}
+        {"name": "Deliver 6 female videos", "stage": "Deliver", "status": "completed", "agent": "casper"}
       ]
     },
     {
@@ -56,15 +56,15 @@
       "started_at": "2026-03-02T20:00:00-03:00",
       "completed_at": "2026-03-03T11:23:00-03:00",
       "tasks": [
-        {"name": "Research tax systems for US/AU/CA/IE/NZ", "stage": "Research", "status": "completed", "agent": "claude"},
-        {"name": "Design localization matrix (VO, images, captions, tax authority)", "stage": "Strategy", "status": "completed", "agent": "claude"},
+        {"name": "Research tax systems US/AU/CA/IE/NZ", "stage": "Research", "status": "completed", "agent": "claude"},
+        {"name": "Design localization matrix", "stage": "Strategy", "status": "completed", "agent": "claude"},
         {"name": "Generate 5 country VOs + Whisper timestamps", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Build factory pipeline (build_variant.py, factory.py, fix_captions.py)", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Generate DALL-E images per country (4 per country)", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Full localization: captions, acronyms, currency, deadlines", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Render 6 male variants V1-V15 + music mix", "stage": "Build", "status": "completed", "agent": "claude"},
-        {"name": "Text audit for UK term leakage across all .tsx files", "stage": "QA", "status": "completed", "agent": "codex"},
-        {"name": "Deliver 6 country variant videos", "stage": "Deliver", "status": "completed", "agent": "casper"}
+        {"name": "Build factory pipeline scripts", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Generate DALL-E images per country", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Full localization: captions, acronyms, currency", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Render 6 male variants + music mix", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Text audit for UK term leakage", "stage": "QA", "status": "completed", "agent": "codex"},
+        {"name": "Deliver 6 country variants", "stage": "Deliver", "status": "completed", "agent": "casper"}
       ]
     },
     {
@@ -76,7 +76,7 @@
       "started_at": "2026-03-04T07:30:00-03:00",
       "tasks": [
         {"name": "Diagnose email Send Next button failure", "stage": "Research", "status": "completed", "agent": "casper"},
-        {"name": "Design Vercel API endpoint + dashboard state.json structure", "stage": "Strategy", "status": "completed", "agent": "casper"},
+        {"name": "Design Vercel API endpoint + state.json structure", "stage": "Strategy", "status": "completed", "agent": "casper"},
         {"name": "Build /api/send-email endpoint + update email page + fix state.json", "stage": "Build", "status": "in_progress", "agent": "claude"}
       ]
     }
