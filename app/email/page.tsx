@@ -133,7 +133,7 @@ export default function EmailPage() {
       const newStage = sub.current_stage + 1;
       const newStatus = newStage >= 8 ? "completed" : sub.status;
       await getSupabase().from("email_subscribers").update({ current_stage: newStage, status: newStatus }).eq("id", sub.id);
-      await getSupabase().from("email_sends").insert({ subscriber_id: sub.id, email_number: newStage, status: "pending" });
+      await getSupabase().from("email_sends").insert({ subscriber_id: sub.id, email_number: newStage, status: "sent" });
       setSendingId(null);
       setSentId(sub.id);
       setTimeout(() => setSentId(null), 3000);
