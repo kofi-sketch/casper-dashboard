@@ -17,10 +17,12 @@ export function useRealtimeSubscription(
     setLastRefresh(new Date());
   }, []);
 
+  const tablesKey = Array.isArray(tables) ? tables.join(",") : tables;
+
   useEffect(() => {
     doFetch();
 
-    const tableList = Array.isArray(tables) ? tables : [tables];
+    const tableList = tablesKey.split(",");
     const channel = supabase.channel(`realtime-${tableList.join("-")}`);
 
     for (const table of tableList) {
@@ -38,7 +40,8 @@ export function useRealtimeSubscription(
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [doFetch, event, tables]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doFetch, event, tablesKey]);
 
   const formatTime = (iso: string) => {
     return new Date(iso).toLocaleTimeString("en-GB", {
