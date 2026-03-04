@@ -1,40 +1,61 @@
 {
-  "lastUpdated": "2026-03-03T11:23:32-03:00",
+  "lastUpdated": "2026-03-03T22:14:21-03:00",
   "kpis": {
     "activeAgents": 0,
-    "tasksCompletedToday": 8,
+    "tasksCompletedToday": 14,
     "errorsToday": 0,
-    "tasksCompleted": 51,
+    "tasksCompleted": 57,
     "followers": {
-      "gettraqd": 4,
+      "gettraqd": 5,
       "igobykofi": 1
     }
   },
   "pipelines": [
     {
-      "id": "country-variants-v5",
-      "name": "Country Variant Ads V5 (Tax Pain)",
+      "id": "paye-fix-v8",
+      "name": "PAYE Pronunciation Fix (All Countries)",
       "status": "completed",
       "stages": [
-        "VO Generation",
+        "VO Recording",
         "Whisper Timestamps",
-        "Factory Build",
-        "Image Generation",
-        "Full Localization",
+        "Scene Rebuild",
         "Render",
+        "Music Mix",
         "Deliver"
       ],
       "completed_stages": [
-        "VO Generation",
+        "VO Recording",
         "Whisper Timestamps",
-        "Factory Build",
-        "Image Generation",
-        "Full Localization",
+        "Scene Rebuild",
         "Render",
+        "Music Mix",
         "Deliver"
       ],
-      "started_at": "2026-03-02T20:00:00-03:00",
-      "completed_at": "2026-03-03T11:23:32-03:00"
+      "started_at": "2026-03-03T17:40:00-03:00",
+      "completed_at": "2026-03-03T19:15:00-03:00"
+    },
+    {
+      "id": "female-variants-v7",
+      "name": "Female Variant Ads V7 (Purse + Female VO)",
+      "status": "completed",
+      "stages": [
+        "VO Recording",
+        "Whisper Timestamps",
+        "Scene Rebuild",
+        "Render",
+        "Music Mix",
+        "Deliver"
+      ],
+      "completed_stages": [
+        "VO Recording",
+        "Whisper Timestamps",
+        "Scene Rebuild",
+        "Render",
+        "Music Mix",
+        "Deliver"
+      ],
+      "started_at": "2026-03-03T17:40:00-03:00",
+      "completed_at": "2026-03-03T19:15:00-03:00"
     }
   ],
   "activeTasks": [],
@@ -57,21 +78,11 @@
     {
       "name": "social-media-manager",
       "schedule": "every 4h",
-      "status": "idle"
-    },
-    {
-      "name": "research-cycle",
-      "schedule": "daily 23:30",
       "status": "ok"
     },
     {
-      "name": "content-drafting",
-      "schedule": "daily 00:30",
-      "status": "ok"
-    },
-    {
-      "name": "qa-review",
-      "schedule": "daily 04:00",
+      "name": "dashboard-sync",
+      "schedule": "every 5m",
       "status": "ok"
     }
   ],
