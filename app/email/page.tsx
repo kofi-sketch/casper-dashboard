@@ -130,30 +130,10 @@ export default function EmailPage() {
     setSendError(null);
 
     try {
-      const res = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          subscriberId: sub.id,
-          emailNumber: sub.current_stage + 1,
-          name: sub.name,
-          email: sub.email,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setSendingId(null);
-        setSendError(`Failed to send to ${sub.name}: ${data.error}`);
-        setTimeout(() => setSendError(null), 5000);
-        return;
-      }
-
       const newStage = sub.current_stage + 1;
       const newStatus = newStage >= 8 ? "completed" : sub.status;
       await getSupabase().from("email_subscribers").update({ current_stage: newStage, status: newStatus }).eq("id", sub.id);
-      await getSupabase().from("email_sends").insert({ subscriber_id: sub.id, email_number: sub.current_stage + 1, status: "sent" });
+      await getSupabase().from("email_sends").insert({ subscriber_id: sub.id, email_number: newStage, status: "pending" });
       setSendingId(null);
       setSentId(sub.id);
       setTimeout(() => setSentId(null), 3000);
@@ -161,7 +141,7 @@ export default function EmailPage() {
     } catch (err: unknown) {
       setSendingId(null);
       const message = err instanceof Error ? err.message : "Network error";
-      setSendError(`Failed to send to ${sub.name}: ${message}`);
+      setSendError(`Failed: ${message}`);
       setTimeout(() => setSendError(null), 5000);
     }
   };
