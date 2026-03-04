@@ -122,17 +122,48 @@ export default function EmailPage() {
     fetchData();
   };
 
+  const [sendError, setSendError] = useState<string | null>(null);
+
   const advanceStage = async (sub: Subscriber) => {
     if (sub.current_stage >= 8) return;
     setSendingId(sub.id);
-    const newStage = sub.current_stage + 1;
-    const newStatus = newStage >= 8 ? "completed" : sub.status;
-    await getSupabase().from("email_subscribers").update({ current_stage: newStage, status: newStatus }).eq("id", sub.id);
-    await getSupabase().from("email_sends").insert({ subscriber_id: sub.id, email_number: sub.current_stage, status: "sent" });
-    setSendingId(null);
-    setSentId(sub.id);
-    setTimeout(() => setSentId(null), 3000);
-    fetchData();
+    setSendError(null);
+
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subscriberId: sub.id,
+          emailNumber: sub.current_stage + 1,
+          name: sub.name,
+          email: sub.email,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSendingId(null);
+        setSendError(`Failed to send to ${sub.name}: ${data.error}`);
+        setTimeout(() => setSendError(null), 5000);
+        return;
+      }
+
+      const newStage = sub.current_stage + 1;
+      const newStatus = newStage >= 8 ? "completed" : sub.status;
+      await getSupabase().from("email_subscribers").update({ current_stage: newStage, status: newStatus }).eq("id", sub.id);
+      await getSupabase().from("email_sends").insert({ subscriber_id: sub.id, email_number: sub.current_stage + 1, status: "sent" });
+      setSendingId(null);
+      setSentId(sub.id);
+      setTimeout(() => setSentId(null), 3000);
+      fetchData();
+    } catch (err: unknown) {
+      setSendingId(null);
+      const message = err instanceof Error ? err.message : "Network error";
+      setSendError(`Failed to send to ${sub.name}: ${message}`);
+      setTimeout(() => setSendError(null), 5000);
+    }
   };
 
   // Computed
@@ -182,6 +213,12 @@ export default function EmailPage() {
     <div style={{ minHeight: "100vh", background: "#000", color: "#fff" }}>
       <Header activePage="email" live lastRefresh={lastRefresh} formatTime={formatTime} />
       <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } } @keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      {sendError && (
+        <div style={{ position: "fixed", top: "80px", left: "50%", transform: "translateX(-50%)", background: "#EF4444", color: "#fff", padding: "12px 24px", borderRadius: "8px", fontSize: "13px", fontFamily: "'Inter', sans-serif", zIndex: 2000, maxWidth: "500px", textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+          {sendError}
+        </div>
+      )}
 
       <main style={{ padding: isMobile ? "12px" : "24px", maxWidth: "1200px", margin: "0 auto" }}>
         {/* KPI Row */}

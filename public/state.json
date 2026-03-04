@@ -1,8 +1,8 @@
 {
-  "lastUpdated": "2026-03-03T22:14:21-03:00",
+  "lastUpdated": "2026-03-04T07:31:00-03:00",
   "kpis": {
-    "activeAgents": 0,
-    "tasksCompletedToday": 14,
+    "activeAgents": 1,
+    "tasksCompletedToday": 1,
     "errorsToday": 0,
     "tasksCompleted": 57,
     "followers": {
@@ -12,50 +12,73 @@
   },
   "pipelines": [
     {
-      "id": "paye-fix-v8",
-      "name": "PAYE Pronunciation Fix (All Countries)",
+      "id": "video-ads-paye-v8",
+      "name": "Video Ads PAYE Fix (All Countries)",
       "status": "completed",
-      "stages": [
-        "VO Recording",
-        "Whisper Timestamps",
-        "Scene Rebuild",
-        "Render",
-        "Music Mix",
-        "Deliver"
-      ],
-      "completed_stages": [
-        "VO Recording",
-        "Whisper Timestamps",
-        "Scene Rebuild",
-        "Render",
-        "Music Mix",
-        "Deliver"
-      ],
+      "stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
+      "completed_stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
       "started_at": "2026-03-03T17:40:00-03:00",
-      "completed_at": "2026-03-03T19:15:00-03:00"
+      "completed_at": "2026-03-03T19:15:00-03:00",
+      "tasks": [
+        {"name": "Analyze PAYE pronunciation issues across 6 countries", "stage": "Research", "status": "completed", "agent": "casper"},
+        {"name": "Design hyphenated P-A-Y-E approach + voice settings per country", "stage": "Strategy", "status": "completed", "agent": "casper"},
+        {"name": "Re-record 8 VOs (UK/IE/NZ/AU male+female) via ElevenLabs", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Whisper timestamp extraction + scene rebuild (all 8 projects)", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Remotion render 8 videos + ffmpeg music mix", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Verify PAYE pronunciation in Whisper output", "stage": "QA", "status": "completed", "agent": "codex"},
+        {"name": "Deliver 12 final videos to Kofi", "stage": "Deliver", "status": "completed", "agent": "casper"}
+      ]
     },
     {
-      "id": "female-variants-v7",
-      "name": "Female Variant Ads V7 (Purse + Female VO)",
+      "id": "female-variants-v3",
+      "name": "Female Variant Ads (Purse Video)",
       "status": "completed",
-      "stages": [
-        "VO Recording",
-        "Whisper Timestamps",
-        "Scene Rebuild",
-        "Render",
-        "Music Mix",
-        "Deliver"
-      ],
-      "completed_stages": [
-        "VO Recording",
-        "Whisper Timestamps",
-        "Scene Rebuild",
-        "Render",
-        "Music Mix",
-        "Deliver"
-      ],
-      "started_at": "2026-03-03T17:40:00-03:00",
-      "completed_at": "2026-03-03T19:15:00-03:00"
+      "stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
+      "completed_stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
+      "started_at": "2026-03-03T14:00:00-03:00",
+      "completed_at": "2026-03-03T17:30:00-03:00",
+      "tasks": [
+        {"name": "Source purse video + female voice mapping per country", "stage": "Research", "status": "completed", "agent": "claude"},
+        {"name": "Design female variant pipeline (clone male, swap VO+Scene01)", "stage": "Strategy", "status": "completed", "agent": "claude"},
+        {"name": "Record 6 female VOs with expressive settings", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Clone 6 male projects, inject purse video + female VO", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Render 6 female variants + music mix", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Verify voice naturalness + caption sync", "stage": "QA", "status": "completed", "agent": "codex"},
+        {"name": "Deliver 6 female videos to Kofi", "stage": "Deliver", "status": "completed", "agent": "casper"}
+      ]
+    },
+    {
+      "id": "country-variants-v15",
+      "name": "Country Variant Ads (6 Countries)",
+      "status": "completed",
+      "stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
+      "completed_stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
+      "started_at": "2026-03-02T20:00:00-03:00",
+      "completed_at": "2026-03-03T11:23:00-03:00",
+      "tasks": [
+        {"name": "Research tax systems for US/AU/CA/IE/NZ", "stage": "Research", "status": "completed", "agent": "claude"},
+        {"name": "Design localization matrix (VO, images, captions, tax authority)", "stage": "Strategy", "status": "completed", "agent": "claude"},
+        {"name": "Generate 5 country VOs + Whisper timestamps", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Build factory pipeline (build_variant.py, factory.py, fix_captions.py)", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Generate DALL-E images per country (4 per country)", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Full localization: captions, acronyms, currency, deadlines", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Render 6 male variants V1-V15 + music mix", "stage": "Build", "status": "completed", "agent": "claude"},
+        {"name": "Text audit for UK term leakage across all .tsx files", "stage": "QA", "status": "completed", "agent": "codex"},
+        {"name": "Deliver 6 country variant videos", "stage": "Deliver", "status": "completed", "agent": "casper"}
+      ]
+    },
+    {
+      "id": "email-api-dashboard-fix",
+      "name": "Email Send API + Dashboard Pipeline Fix",
+      "status": "in_progress",
+      "stages": ["Research", "Strategy", "Build", "QA", "Deliver"],
+      "completed_stages": ["Research", "Strategy"],
+      "started_at": "2026-03-04T07:30:00-03:00",
+      "tasks": [
+        {"name": "Diagnose email Send Next button failure", "stage": "Research", "status": "completed", "agent": "casper"},
+        {"name": "Design Vercel API endpoint + dashboard state.json structure", "stage": "Strategy", "status": "completed", "agent": "casper"},
+        {"name": "Build /api/send-email endpoint + update email page + fix state.json", "stage": "Build", "status": "in_progress", "agent": "claude"}
+      ]
     }
   ],
   "activeTasks": [],
@@ -89,19 +112,19 @@
   "recentCompletions": [
     {
       "agent": "CMO (Casper)",
-      "task": "Country Variant Ads V5 \u2014 5 fully localized videos (US/AU/CA/IE/NZ) with HD images, localized currency, captions, city skylines",
+      "task": "Country Variant Ads V5 — 5 fully localized videos (US/AU/CA/IE/NZ) with HD images, localized currency, captions, city skylines",
       "completedAt": "2026-03-03T11:23:32-03:00",
       "duration": "~14h"
     },
     {
       "agent": "CMO (Casper)",
-      "task": "Country Variant Ads V4 \u2014 City skylines + fresh images",
+      "task": "Country Variant Ads V4 — City skylines + fresh images",
       "completedAt": "2026-03-03T10:33:00-03:00",
       "duration": "30m"
     },
     {
       "agent": "CMO (Casper)",
-      "task": "Country Variant Ads V3 \u2014 Currency counter fix",
+      "task": "Country Variant Ads V3 — Currency counter fix",
       "completedAt": "2026-03-03T10:07:00-03:00",
       "duration": "20m"
     },
@@ -113,7 +136,7 @@
     },
     {
       "agent": "Scout Intel",
-      "task": "3 intel runs \u2014 30 findings inserted into content_research",
+      "task": "3 intel runs — 30 findings inserted into content_research",
       "completedAt": "2026-03-03T10:32:00-03:00",
       "duration": "auto"
     }
@@ -127,27 +150,15 @@
     "supabase": "connected",
     "elevenlabs": "connected",
     "braveSearch": "connected",
-    "acpRuntime": "broken \u2014 PTY fallback active"
+    "acpRuntime": "broken — PTY fallback active"
   },
   "pipeline_history": [
     {
       "id": "substack-week2",
       "name": "Substack Week 2: The Quiet Part",
       "status": "completed",
-      "stages": [
-        "Research",
-        "Strategy",
-        "Writing",
-        "QA",
-        "Deliver"
-      ],
-      "completed_stages": [
-        "Research",
-        "Strategy",
-        "Writing",
-        "QA",
-        "Deliver"
-      ],
+      "stages": ["Research", "Strategy", "Writing", "QA", "Deliver"],
+      "completed_stages": ["Research", "Strategy", "Writing", "QA", "Deliver"],
       "started_at": "2026-03-02T11:54:00Z",
       "completed_at": "2026-03-02T13:28:00Z",
       "duration": "1h 34m"
@@ -156,18 +167,8 @@
       "id": "tofu-v5",
       "name": "Traqd 20s TOFU Ad: V5 (Full Rebuild)",
       "status": "completed",
-      "stages": [
-        "Spec",
-        "ffmpeg Scale",
-        "Build",
-        "Render"
-      ],
-      "completed_stages": [
-        "Spec",
-        "ffmpeg Scale",
-        "Build",
-        "Render"
-      ],
+      "stages": ["Spec", "ffmpeg Scale", "Build", "Render"],
+      "completed_stages": ["Spec", "ffmpeg Scale", "Build", "Render"],
       "started_at": "2026-03-02T12:41:00Z",
       "completed_at": "2026-03-02T12:53:00Z",
       "duration": "12m"
@@ -176,18 +177,8 @@
       "id": "tofu-v4",
       "name": "Traqd 20s TOFU Ad: V4 (Real Footage)",
       "status": "completed",
-      "stages": [
-        "VO Re-record",
-        "Asset Prep",
-        "Build",
-        "Render"
-      ],
-      "completed_stages": [
-        "VO Re-record",
-        "Asset Prep",
-        "Build",
-        "Render"
-      ],
+      "stages": ["VO Re-record", "Asset Prep", "Build", "Render"],
+      "completed_stages": ["VO Re-record", "Asset Prep", "Build", "Render"],
       "started_at": "2026-03-02T10:54:00Z",
       "completed_at": "2026-03-02T11:44:00Z",
       "duration": "50m"
@@ -196,24 +187,8 @@
       "id": "country-variants-v5",
       "name": "Country Variant Ads V5 (Full Localization)",
       "status": "completed",
-      "stages": [
-        "VO Generation",
-        "Whisper Timestamps",
-        "Factory Build",
-        "Image Gen",
-        "Localization",
-        "Render",
-        "Deliver"
-      ],
-      "completed_stages": [
-        "VO Generation",
-        "Whisper Timestamps",
-        "Factory Build",
-        "Image Gen",
-        "Localization",
-        "Render",
-        "Deliver"
-      ],
+      "stages": ["VO Generation", "Whisper Timestamps", "Factory Build", "Image Gen", "Localization", "Render", "Deliver"],
+      "completed_stages": ["VO Generation", "Whisper Timestamps", "Factory Build", "Image Gen", "Localization", "Render", "Deliver"],
       "started_at": "2026-03-02T20:00:00-03:00",
       "completed_at": "2026-03-03T11:23:32-03:00",
       "duration": "~14h (overnight)"
