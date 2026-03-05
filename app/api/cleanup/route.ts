@@ -2,10 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 // Use service role key for writes — falls back to anon key for read-only cleanup
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  );
+}
 
 const STALE_TASK_MINUTES = 30;
 
@@ -18,7 +20,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from("dashboard_state")
       .select("state")
       .eq("id", 1)
@@ -77,7 +79,7 @@ export async function GET(request: Request) {
     if (changed) {
       state.lastUpdated = now.toISOString();
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await getSupabase()
         .from("dashboard_state")
         .update({ state, updated_at: now.toISOString() })
         .eq("id", 1);

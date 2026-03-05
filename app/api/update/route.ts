@@ -2,10 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
 // Server-side Supabase client — prefers service key for full write access
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  );
+}
 
 interface TaskUpdate {
   task: string;
@@ -73,7 +75,7 @@ export async function POST(req: NextRequest) {
     const now = new Date().toISOString();
 
     // Fetch current state atomically
-    const { data: row, error: fetchErr } = await supabase
+    const { data: row, error: fetchErr } = await getSupabase()
       .from("dashboard_state")
       .select("state")
       .eq("id", 1)
@@ -182,11 +184,12 @@ export async function POST(req: NextRequest) {
       }
 
       // Replace existing pipeline or add new
+      const pipelineRecord = pipeline as unknown as Record<string, unknown>;
       const idx = pipelines.findIndex((p) => p.id === pipeline.id);
       if (idx >= 0) {
-        pipelines[idx] = pipeline;
+        pipelines[idx] = pipelineRecord;
       } else {
-        pipelines.push(pipeline);
+        pipelines.push(pipelineRecord);
       }
       state.pipelines = pipelines;
 
@@ -225,7 +228,7 @@ export async function POST(req: NextRequest) {
     state.lastUpdated = now;
 
     // Write state back
-    const { error: updateErr } = await supabase
+    const { error: updateErr } = await getSupabase()
       .from("dashboard_state")
       .update({ state, updated_at: now })
       .eq("id", 1);
@@ -239,7 +242,7 @@ export async function POST(req: NextRequest) {
 
     // Archive to pipeline_history if needed
     if (historyInsert) {
-      const { error: histErr } = await supabase
+      const { error: histErr } = await getSupabase()
         .from("pipeline_history")
         .insert(historyInsert);
 
