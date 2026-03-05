@@ -212,6 +212,11 @@ function parseDashboardState(rawState: unknown): DashboardState {
           return null;
         }
         const startedAt = asString(item.startedAt, new Date().toISOString());
+        // Client-side safety net: filter tasks older than 30 minutes
+        const started = new Date(startedAt);
+        if (Date.now() - started.getTime() > 30 * 60 * 1000) {
+          return null;
+        }
         return {
           id: asString(item.id, `task-${index}`),
           agentName: asString(item.agentName, asString(item.agent, "Unknown Agent")),

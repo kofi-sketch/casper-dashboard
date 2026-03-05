@@ -156,13 +156,31 @@ print(json.dumps(payload))
   fi
 }
 
-# Check for completed/failed pipelines and archive them
+# Check for completed/failed pipelines and archive them.
+# Also enrich pipelines with tasks from recentCompletions if tasks field is empty.
 PIPELINES_JSON=$(echo "$STATE_JSON" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 pipelines = data.get('pipelines', [])
+completions = data.get('recentCompletions', [])
 done = [p for p in pipelines if p.get('status') in ('complete', 'failed')]
 for p in done:
+    # If pipeline has no tasks, try to match from recentCompletions by time window
+    if not p.get('tasks'):
+        started = p.get('startedAt', '')
+        tasks = []
+        for c in completions:
+            completed_at = c.get('completedAt', '')
+            if started and completed_at and completed_at >= started:
+                tasks.append({
+                    'id': c.get('id', ''),
+                    'description': c.get('taskDescription', c.get('task', '')),
+                    'agentName': c.get('agentName', c.get('agent', '')),
+                    'status': 'complete',
+                    'duration': c.get('duration', '-')
+                })
+        if tasks:
+            p['tasks'] = tasks
     print(json.dumps(p))
 " 2>/dev/null || true)
 

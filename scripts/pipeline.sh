@@ -12,8 +12,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-STATE_FILE="/Users/AIAgenterminal/.openclaw/workspace/memory/pipeline-state.json"
-LOG_FILE="/Users/AIAgenterminal/.openclaw/logs/pipeline.log"
+DATA_DIR="${SCRIPT_DIR}/../.pipeline"
+mkdir -p "$DATA_DIR"
+STATE_FILE="${DATA_DIR}/pipeline-state.json"
+LOG_FILE="${DATA_DIR}/pipeline.log"
 DASHBOARD_SCRIPT="${SCRIPT_DIR}/update-dashboard.sh"
 
 ALLOWED_AGENTS=("claude" "codex")
@@ -68,23 +70,25 @@ cmd_start() {
 
   # Track in state file
   ensure_state_file
-  python3 -c "
+  python3 - "$STATE_FILE" "$task" "$agent" <<'PYEOF'
 import json, sys
 from datetime import datetime, timezone
 
-with open('$STATE_FILE', 'r') as f:
+state_file, task, agent = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(state_file, 'r') as f:
     state = json.load(f)
 
 now = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 state['active'].append({
-    'task': '''$task''',
-    'agent': '''$agent''',
+    'task': task,
+    'agent': agent,
     'startedAt': now
 })
 
-with open('$STATE_FILE', 'w') as f:
+with open(state_file, 'w') as f:
     json.dump(state, f, indent=2)
-"
+PYEOF
 
   echo ""
   echo "--- Pipeline: STARTED ---"
@@ -108,11 +112,13 @@ cmd_complete() {
 
   # Remove from state, add to history
   ensure_state_file
-  python3 -c "
-import json
+  python3 - "$STATE_FILE" "$task" "$agent" <<'PYEOF'
+import json, sys
 from datetime import datetime, timezone
 
-with open('$STATE_FILE', 'r') as f:
+state_file, task, agent = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(state_file, 'r') as f:
     state = json.load(f)
 
 now = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
@@ -121,7 +127,7 @@ now = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 removed = None
 new_active = []
 for entry in state.get('active', []):
-    if entry.get('task') == '''$task''':
+    if entry.get('task') == task:
         removed = entry
     else:
         new_active.append(entry)
@@ -129,17 +135,17 @@ state['active'] = new_active
 
 # Add to history
 history_entry = {
-    'task': '''$task''',
-    'agent': '''$agent''',
+    'task': task,
+    'agent': agent,
     'completedAt': now,
     'startedAt': removed.get('startedAt', now) if removed else now
 }
 state.setdefault('history', []).insert(0, history_entry)
 state['history'] = state['history'][:50]  # Keep last 50
 
-with open('$STATE_FILE', 'w') as f:
+with open(state_file, 'w') as f:
     json.dump(state, f, indent=2)
-"
+PYEOF
 
   # Determine next stage
   local agent_lower
@@ -178,27 +184,29 @@ cmd_fail() {
 
   # Remove from state
   ensure_state_file
-  python3 -c "
-import json
+  python3 - "$STATE_FILE" "$task" "$agent" "$error" <<'PYEOF'
+import json, sys
 from datetime import datetime, timezone
 
-with open('$STATE_FILE', 'r') as f:
+state_file, task, agent, error = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+
+with open(state_file, 'r') as f:
     state = json.load(f)
 
 now = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
-state['active'] = [e for e in state.get('active', []) if e.get('task') != '''$task''']
+state['active'] = [e for e in state.get('active', []) if e.get('task') != task]
 
 state.setdefault('failures', []).insert(0, {
-    'task': '''$task''',
-    'agent': '''$agent''',
-    'error': '''$error''',
+    'task': task,
+    'agent': agent,
+    'error': error,
     'failedAt': now
 })
 state['failures'] = state.get('failures', [])[:20]
 
-with open('$STATE_FILE', 'w') as f:
+with open(state_file, 'w') as f:
     json.dump(state, f, indent=2)
-"
+PYEOF
 
   echo ""
   echo "!!! Pipeline: FAILED !!!"
@@ -212,12 +220,17 @@ with open('$STATE_FILE', 'w') as f:
 }
 
 cmd_check() {
+  local SUPABASE_URL_CHECK="https://stboueshyjvooiftfuxm.supabase.co"
+  local ANON_KEY_CHECK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Ym91ZXNoeWp2b29pZnRmdXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDA0MDAsImV4cCI6MjA4NjMxNjQwMH0.posxmZ-SQAm0Y9VQwtD5VSt7LQrOM23J9h2oG3SCmKU"
+
   ensure_state_file
-  python3 -c "
-import json, subprocess
+  python3 - "$STATE_FILE" "$SUPABASE_URL_CHECK" "$ANON_KEY_CHECK" <<'PYEOF'
+import json, sys
 from datetime import datetime, timezone, timedelta
 
-with open('$STATE_FILE', 'r') as f:
+state_file, supabase_url, anon_key = sys.argv[1], sys.argv[2], sys.argv[3]
+
+with open(state_file, 'r') as f:
     state = json.load(f)
 
 active = state.get('active', [])
@@ -252,11 +265,9 @@ else:
     if overdue_tasks:
         try:
             import urllib.request
-            SUPABASE_URL = '$SUPABASE_URL' if '$SUPABASE_URL' != '' else 'https://stboueshyjvooiftfuxm.supabase.co'
-            ANON_KEY = '$ANON_KEY' if '$ANON_KEY' != '' else 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0Ym91ZXNoeWp2b29pZnRmdXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDA0MDAsImV4cCI6MjA4NjMxNjQwMH0.posxmZ-SQAm0Y9VQwtD5VSt7LQrOM23J9h2oG3SCmKU'
             req = urllib.request.Request(
-                f'{SUPABASE_URL}/rest/v1/dashboard_state?id=eq.1&select=state',
-                headers={'apikey': ANON_KEY, 'Authorization': f'Bearer {ANON_KEY}'}
+                f'{supabase_url}/rest/v1/dashboard_state?id=eq.1&select=state',
+                headers={'apikey': anon_key, 'Authorization': f'Bearer {anon_key}'}
             )
             resp = urllib.request.urlopen(req)
             data = json.loads(resp.read())[0]['state']
@@ -277,12 +288,12 @@ else:
                 data['lastUpdated'] = now.strftime('%Y-%m-%dT%H:%M:%SZ')
                 payload = json.dumps({'state': data, 'updated_at': now.strftime('%Y-%m-%dT%H:%M:%SZ')}).encode()
                 patch_req = urllib.request.Request(
-                    f'{SUPABASE_URL}/rest/v1/dashboard_state?id=eq.1',
+                    f'{supabase_url}/rest/v1/dashboard_state?id=eq.1',
                     data=payload,
                     method='PATCH',
                     headers={
-                        'apikey': ANON_KEY,
-                        'Authorization': f'Bearer {ANON_KEY}',
+                        'apikey': anon_key,
+                        'Authorization': f'Bearer {anon_key}',
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     }
@@ -297,8 +308,8 @@ if recent:
     print()
     print('Recent completions:')
     for h in recent:
-        print(f'  [{h.get(\"agent\",\"?\")}] {h.get(\"task\",\"?\")} — completed {h.get(\"completedAt\",\"?\")[:16]}')
-"
+        print(f'  [{h.get("agent","?")}] {h.get("task","?")} — completed {h.get("completedAt","?")[:16]}')
+PYEOF
 }
 
 # Main dispatch
