@@ -3,6 +3,8 @@ import { supabase } from "../lib/supabase";
 
 type RealtimeEvent = "INSERT" | "UPDATE" | "DELETE" | "*";
 
+const POLL_INTERVAL_MS = 15_000; // 15s polling fallback
+
 export function useRealtimeSubscription(
   tables: string | string[],
   event: RealtimeEvent,
@@ -25,6 +27,8 @@ export function useRealtimeSubscription(
     const tableList = tablesKey.split(",");
     const channel = supabase.channel(`realtime-${tableList.join("-")}`);
 
+    let realtimeConnected = false;
+
     for (const table of tableList) {
       channel.on(
         "postgres_changes" as any,
@@ -35,10 +39,19 @@ export function useRealtimeSubscription(
       );
     }
 
-    channel.subscribe();
+    channel.subscribe((status: string) => {
+      realtimeConnected = status === "SUBSCRIBED";
+    });
+
+    // Polling fallback: refresh every POLL_INTERVAL_MS regardless of realtime status.
+    // This ensures the dashboard stays current even if websocket silently disconnects.
+    const pollTimer = setInterval(() => {
+      doFetch();
+    }, POLL_INTERVAL_MS);
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doFetch, event, tablesKey]);
