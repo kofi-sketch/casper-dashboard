@@ -23,10 +23,20 @@ ALLOWED_AGENTS=("claude" "codex")
 # Pipeline stages in order
 STAGES=("research" "strategy" "build" "qa" "deliver")
 
+DASHBOARD_API="https://casperops.vercel.app/api/update"
+
 log() {
   local msg="[$(date -u +"%Y-%m-%dT%H:%M:%SZ")] $*"
   echo "$msg" >> "$LOG_FILE"
   echo "$msg"
+}
+
+# POST to dashboard API (fire and forget, don't block pipeline)
+api_update() {
+  local payload="$1"
+  curl -s -X POST "$DASHBOARD_API" \
+    -H "Content-Type: application/json" \
+    -d "$payload" >/dev/null 2>&1 &
 }
 
 ensure_state_file() {
@@ -67,6 +77,7 @@ cmd_start() {
   # Update dashboard FIRST (Step 0)
   log "START: task='$task' agent='$agent'"
   bash "$DASHBOARD_SCRIPT" "$task" "start" "$agent"
+  api_update "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"start\",\"agent\":\"$agent\"}"
 
   # Track in state file
   ensure_state_file
@@ -109,6 +120,7 @@ cmd_complete() {
   # Update dashboard
   log "COMPLETE: task='$task' agent='$agent'"
   bash "$DASHBOARD_SCRIPT" "$task" "complete" "$agent"
+  api_update "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"complete\",\"agent\":\"$agent\"}"
 
   # Remove from state, add to history
   ensure_state_file
@@ -181,6 +193,7 @@ cmd_fail() {
   # Update dashboard
   log "FAIL: task='$task' agent='$agent' error='$error'"
   bash "$DASHBOARD_SCRIPT" "$task" "fail" "$agent"
+  api_update "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"fail\",\"agent\":\"$agent\",\"error\":\"$error\"}"
 
   # Remove from state
   ensure_state_file
