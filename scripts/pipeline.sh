@@ -39,6 +39,161 @@ api_update() {
     -d "$payload" >/dev/null 2>&1 &
 }
 
+# Extract pipeline name and stage from task description
+# e.g., "traqd-lp-research" → pipeline="traqd-lp", stage="research"
+# e.g., "ko-carousel-build" → pipeline="ko-carousel", stage="build"
+extract_pipeline_info() {
+  local task="$1"
+  local task_lower
+  task_lower=$(echo "$task" | tr '[:upper:]' '[:lower:]')
+  
+  PIPELINE_STAGE=""
+  PIPELINE_NAME=""
+  
+  for stage in "${STAGES[@]}"; do
+    if echo "$task_lower" | grep -q "$stage"; then
+      PIPELINE_STAGE="$stage"
+      # Remove the stage suffix to get pipeline name
+      PIPELINE_NAME=$(echo "$task_lower" | sed "s/[-_ ]*${stage}[-_ ]*//" | sed 's/^[-_ ]*//' | sed 's/[-_ ]*$//')
+      if [ -z "$PIPELINE_NAME" ]; then
+        PIPELINE_NAME="$task_lower"
+      fi
+      return 0
+    fi
+  done
+  
+  # No stage found — treat whole task as a single-stage pipeline
+  PIPELINE_NAME="$task_lower"
+  PIPELINE_STAGE="done"
+  return 0
+}
+
+# Build a pipeline API payload that groups stages
+pipeline_api_update() {
+  local task="$1"
+  local status="$2"  # start | complete | fail
+  local agent="$3"
+  
+  extract_pipeline_info "$task"
+  
+  local pipeline_id="pipeline-${PIPELINE_NAME}"
+  local now
+  now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  
+  # Read current pipeline state from local tracking
+  local pipe_state_file="${DATA_DIR}/pipe-${PIPELINE_NAME}.json"
+  
+  if [ "$status" = "start" ]; then
+    if [ ! -f "$pipe_state_file" ]; then
+      # New pipeline — create tracking file
+      python3 -c "
+import json, sys
+state = {
+    'id': sys.argv[1],
+    'name': sys.argv[2],
+    'stages': ['research','strategy','build','qa','deliver'],
+    'currentStage': sys.argv[3],
+    'completedStages': [],
+    'startedAt': sys.argv[4],
+    'status': 'running',
+    'tasks': [{
+        'id': 'task-' + sys.argv[3],
+        'description': sys.argv[5],
+        'agentName': sys.argv[6],
+        'status': 'running',
+        'duration': '0s'
+    }]
+}
+with open(sys.argv[7], 'w') as f:
+    json.dump(state, f, indent=2)
+print(json.dumps({'type':'pipeline','pipeline':state}))
+" "$pipeline_id" "$PIPELINE_NAME" "$PIPELINE_STAGE" "$now" "$task" "$agent" "$pipe_state_file"
+    else
+      # Existing pipeline — update current stage
+      python3 -c "
+import json, sys
+with open(sys.argv[1], 'r') as f:
+    state = json.load(f)
+state['currentStage'] = sys.argv[2]
+state['status'] = 'running'
+state['tasks'].append({
+    'id': 'task-' + sys.argv[2],
+    'description': sys.argv[3],
+    'agentName': sys.argv[4],
+    'status': 'running',
+    'duration': '0s'
+})
+with open(sys.argv[1], 'w') as f:
+    json.dump(state, f, indent=2)
+print(json.dumps({'type':'pipeline','pipeline':state}))
+" "$pipe_state_file" "$PIPELINE_STAGE" "$task" "$agent"
+    fi
+  elif [ "$status" = "complete" ]; then
+    if [ -f "$pipe_state_file" ]; then
+      python3 -c "
+import json, sys
+from datetime import datetime, timezone
+with open(sys.argv[1], 'r') as f:
+    state = json.load(f)
+stage = sys.argv[2]
+now = sys.argv[3]
+if stage not in state['completedStages']:
+    state['completedStages'].append(stage)
+# Update task status
+for t in state['tasks']:
+    if t.get('description') == sys.argv[4] and t['status'] == 'running':
+        started = state.get('startedAt', now)
+        t['status'] = 'complete'
+        # Calculate duration
+        try:
+            s = datetime.fromisoformat(started.replace('Z','+00:00'))
+            e = datetime.fromisoformat(now.replace('Z','+00:00'))
+            diff = int((e - s).total_seconds())
+            mins = diff // 60
+            secs = diff % 60
+            t['duration'] = f'{mins}m {secs}s' if mins > 0 else f'{secs}s'
+        except:
+            t['duration'] = '0s'
+        break
+# Check if all stages done
+all_stages = state['stages']
+if set(state['completedStages']) >= set(all_stages):
+    state['status'] = 'complete'
+else:
+    # Find next stage
+    for s in all_stages:
+        if s not in state['completedStages']:
+            state['currentStage'] = s
+            break
+with open(sys.argv[1], 'w') as f:
+    json.dump(state, f, indent=2)
+print(json.dumps({'type':'pipeline','pipeline':state}))
+" "$pipe_state_file" "$PIPELINE_STAGE" "$now" "$task"
+    else
+      # No tracking file — fall back to task-level update
+      echo "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"complete\",\"agent\":\"$agent\"}"
+    fi
+  elif [ "$status" = "fail" ]; then
+    if [ -f "$pipe_state_file" ]; then
+      python3 -c "
+import json, sys
+with open(sys.argv[1], 'r') as f:
+    state = json.load(f)
+state['status'] = 'failed'
+for t in state['tasks']:
+    if t.get('description') == sys.argv[2] and t['status'] == 'running':
+        t['status'] = 'failed'
+        break
+with open(sys.argv[1], 'w') as f:
+    json.dump(state, f, indent=2)
+print(json.dumps({'type':'pipeline','pipeline':state}))
+" "$pipe_state_file" "$task"
+    else
+      echo "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"fail\",\"agent\":\"$agent\"}"
+    fi
+  fi
+}
+
 ensure_state_file() {
   if [ ! -f "$STATE_FILE" ]; then
     echo '{"active":[],"history":[]}' > "$STATE_FILE"
@@ -77,7 +232,10 @@ cmd_start() {
   # Update dashboard FIRST (Step 0)
   log "START: task='$task' agent='$agent'"
   bash "$DASHBOARD_SCRIPT" "$task" "start" "$agent"
-  api_update "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"start\",\"agent\":\"$agent\"}"
+  # Use pipeline grouping for API update
+  local pipe_payload
+  pipe_payload=$(pipeline_api_update "$task" "start" "$agent")
+  api_update "$pipe_payload"
 
   # Track in state file
   ensure_state_file
@@ -120,7 +278,10 @@ cmd_complete() {
   # Update dashboard
   log "COMPLETE: task='$task' agent='$agent'"
   bash "$DASHBOARD_SCRIPT" "$task" "complete" "$agent"
-  api_update "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"complete\",\"agent\":\"$agent\"}"
+  # Use pipeline grouping for API update
+  local pipe_payload
+  pipe_payload=$(pipeline_api_update "$task" "complete" "$agent")
+  api_update "$pipe_payload"
 
   # Remove from state, add to history
   ensure_state_file
@@ -193,7 +354,10 @@ cmd_fail() {
   # Update dashboard
   log "FAIL: task='$task' agent='$agent' error='$error'"
   bash "$DASHBOARD_SCRIPT" "$task" "fail" "$agent"
-  api_update "{\"type\":\"task\",\"task\":\"$task\",\"status\":\"fail\",\"agent\":\"$agent\",\"error\":\"$error\"}"
+  # Use pipeline grouping for API update
+  local pipe_payload
+  pipe_payload=$(pipeline_api_update "$task" "fail" "$agent")
+  api_update "$pipe_payload"
 
   # Remove from state
   ensure_state_file
